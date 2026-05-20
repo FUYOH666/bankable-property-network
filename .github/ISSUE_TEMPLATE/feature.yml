@@ -1,0 +1,56 @@
+name: Feature request
+description: Propose a feature or enhancement for AttestRWA.
+title: "feat: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an idea. AttestRWA is an infrastructure project — small,
+        composable changes that move us toward production attester pilots are most welcome.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Contracts (SettlementEscrow / MockUSDC / EAS integration)
+        - Backend (FastAPI attester / RAG / DSL)
+        - Frontend (Next.js / wallet UI / Farcaster Frame)
+        - Scripts (dev-chain / deploy / e2e)
+        - Docs
+        - CI / GitHub config
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: Describe the gap or pain point first; the solution second.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed approach
+      placeholder: |
+        e.g. Add per-attester rate limiting in the FastAPI attester service.
+        e.g. Add `attestation.refUID` linking to a parent batch attestation.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: |
+        What else did you weigh, and why is the proposed approach better?
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Explicit non-goals
+      description: |
+        Reminder of what AttestRWA does NOT plan to build (see docs/ROADMAP.md).
+        Mark anything here that should stay out of scope of the proposal.

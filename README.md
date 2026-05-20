@@ -5,8 +5,14 @@
 > stablecoin payments for real-world assets release only when the deal is
 > bank-grade.
 
-[![Status](https://img.shields.io/badge/status-v1.0.0--rc-orange)](#)
+[![CI](https://github.com/FUYOH666/bankable-property-network/actions/workflows/ci.yml/badge.svg?branch=v1%2Fattestation-layer)](https://github.com/FUYOH666/bankable-property-network/actions/workflows/ci.yml)
+[![Foundry tests](https://img.shields.io/badge/forge%20test-33%2F33-success)](contracts/test)
+[![pytest](https://img.shields.io/badge/pytest-62%2F62-success)](apps/api/tests)
+[![Slither](https://img.shields.io/badge/slither-0%20findings-success)](docs/SECURITY.md)
+[![Solidity](https://img.shields.io/badge/solidity-0.8.26-blue)](contracts/foundry.toml)
+[![Foundry](https://img.shields.io/badge/foundry-1.7.1-orange)](https://book.getfoundry.sh/)
 [![Network](https://img.shields.io/badge/network-Base%20Sepolia-blue)](https://sepolia.basescan.org/)
+[![EAS Schema](https://img.shields.io/badge/EAS%20schema-0x1f64ec96%E2%80%A6-7c3aed)](docs/ATTESTATION_SCHEMA.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![Hackathon](https://img.shields.io/badge/hackathon-SEA%20Blockchain%20Week%202026-purple)](https://www.seablockchainweek.org/hackathon)
 
