@@ -1,5 +1,50 @@
 # Changelog
 
+## v1.0.0-alpha.2 — 2026-05-20 (branch `v1/attestation-layer`)
+
+**Week 2.3 — end-to-end on-chain settlement works.** Buyer deposits to
+`SettlementEscrow`, off-chain attester decides + signs + broadcasts an EAS
+`SettlementApproval` attestation, escrow verifies and releases to the
+authorized payee — every step on the dev fork of Base Sepolia with the
+real EAS protocol bytecode at the canonical addresses.
+
+### Added
+- `scripts/e2e_rwa_flow.sh` (idempotent, ANSI-coloured output):
+  ensures `./scripts/dev-chain.sh` is running, ensures contracts are
+  deployed, starts the FastAPI attester if not up (with env from
+  `.dev-chain.state`), then walks the whole 5-step flow:
+    1. Mint mUSDC to the buyer EOA.
+    2. Buyer approves escrow.
+    3. Buyer deposits with a fresh deterministic `dealId`.
+    4. `POST /attest/settlement` → backend signs + broadcasts EAS attestation.
+    5. `cast send escrow.release(dealId, uid)` → payee receives funds.
+
+### First live happy-path run (audit trail)
+- Deal id          : `0xf429b5fd03631715bcbcb70af36e6035b873fc0afa93b5ba3d1196aa8db46569`
+- Buyer            : `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` (Anvil #1)
+- Payee            : `0x976EA74026E726554dB657fA54763abd0C3a0aa9` (Anvil #6, Bangkok Landmark)
+- Amount           : 580 mUSDC (580,000,000 base units)
+- Attestation UID  : `0xf34d952dbcb2c58fc762666b26adccd87c89c2fbf47ffea8c9567ac5a559057c`
+- Attest tx        : `0x9aa60282dfb475426b983b461a6df34a52a12491049eda84dd639c32021364d4`
+- Attest block     : 41,755,438
+- Attest gas       : 433,971
+- Final payee bal  : 580,000,000 mUSDC base units (580 USDC equivalent)
+
+### Verified
+- E2E script exits 0; payee balance assertion passes.
+- 4-rule DSL policy evaluation logged in the attest response with
+  per-rule explanations (`payee-must-match-developer-feed`,
+  `capital-not-red`, `kyc-tier-by-amount`, `only-supported-jurisdictions`).
+- Backend `web3.py` correctly encoded the 10-field SettlementApproval
+  payload; the EAS contract accepted the schema-bound attestation.
+- Escrow contract verified all 7 attestation requirements (schema pin,
+  revocation, expiration, attester whitelist, dealId match, payee match,
+  capital class, payee verified) and transferred the stablecoin.
+
+### Tag
+- `v1.0.0-alpha.2` — Week 2 closeout. Week 3 starts with Farcaster Frame,
+  Dune dashboard, UI polish, and the optional real-testnet deploy.
+
 ## v1.0.0-alpha.2.w2.2 — 2026-05-20 (branch `v1/attestation-layer`)
 
 **Week 2.2 — attester service shipped.** Off-chain compliance engine plus
