@@ -41,8 +41,7 @@ OUTPUT=$(PRIVATE_KEY="$ATTESTER_PRIVATE_KEY" \
   forge script script/Deploy.s.sol \
   --rpc-url "$DEV_RPC_URL" \
   --broadcast \
-  --skip-simulation \
-  --silent 2>&1)
+  --skip-simulation 2>&1)
 
 MOCK_USDC_ADDRESS=$(echo "$OUTPUT" | awk '/MockUSDC[[:space:]]*:/ {print $NF}')
 SETTLEMENT_ESCROW_ADDRESS=$(echo "$OUTPUT" | awk '/SettlementEscrow:/ {print $NF}')

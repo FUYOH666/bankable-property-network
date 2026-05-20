@@ -168,29 +168,40 @@ This is RWA growing up.
 | Analytics | Dune Analytics — public queries in `docs/DUNE_QUERIES.md` |
 | Distribution | Farcaster Frame at `/api/frame/attest` |
 
-## Quickstart (one terminal, ~2 minutes)
+## Quickstart — one command, ~2 minutes
 
 ```bash
-# 1. Foundry (one-time install)
+# One-time installs
 curl -L https://foundry.paradigm.xyz | bash && source ~/.zshenv && foundryup
+curl -LsSf https://astral.sh/uv/install.sh | sh
+corepack enable && corepack prepare pnpm@latest --activate
 
-# 2. Start the dev chain (Anvil fork of Base Sepolia + EAS schema registered)
-./scripts/dev-chain.sh
-
-# 3. Deploy MockUSDC + SettlementEscrow against the fork
-./scripts/deploy-contracts.sh
-
-# 4. Run the happy-path E2E demo (boots FastAPI attester if not up)
-./scripts/e2e_rwa_flow.sh
-
-# 5. Run the reject-path E2E demo
-./scripts/e2e_rwa_reject.sh
-
-# 6. Open the Farcaster Frame preview
-open http://localhost:8080/api/frame/attest?decision=approve
+# Boot the entire stack: dev chain + contracts deployed + FastAPI + Next.js web
+./scripts/demo-mode.sh
 ```
 
-Stop the dev chain with `./scripts/stop-dev-chain.sh`.
+Output ends with a `DEMO READY` block listing all addresses + URLs. Then:
+
+```bash
+# Two end-to-end smokes (each ~15 s) — happy path and reject path
+./scripts/e2e_rwa_flow.sh
+./scripts/e2e_rwa_reject.sh
+
+# Cinematic UI: open http://localhost:3000/rwa-settlement-live
+# Farcaster Frame preview: open http://localhost:8080/api/frame/attest?decision=approve
+
+# Stop everything
+./scripts/stop-demo-mode.sh
+```
+
+The full hackathon recording walkthrough (terminal-only **and** UI+wallet
+paths) is in [`docs/HACKATHON_RECORDING_GUIDE.md`](docs/HACKATHON_RECORDING_GUIDE.md).
+
+> **Why this works without a faucet:** the dev chain is an Anvil fork of
+> real Base Sepolia, so the EAS protocol bytecode at the canonical
+> address `0x4200…0021` is the production code (4,121 bytes), not a
+> mock. Every attestation in the demo runs through the real EAS
+> protocol — only the chain itself is local.
 
 ## What we don't build (explicit boundaries)
 

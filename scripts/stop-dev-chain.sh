@@ -9,23 +9,23 @@ STATE_FILE="${ATTESTRWA_STATE_FILE:-.dev-chain.state}"
 log() { printf '[stop-dev-chain] %s\n' "$*" >&2; }
 
 if [ -f "$ANVIL_PID_FILE" ]; then
-  pid=$(cat "$ANVIL_PID_FILE")
+  pid="$(cat "$ANVIL_PID_FILE")"
   if kill -0 "$pid" 2>/dev/null; then
-    log "Killing anvil pid $pid…"
+    log "Killing anvil pid ${pid}..."
     kill "$pid"
     sleep 1
     kill -9 "$pid" 2>/dev/null || true
   else
-    log "No process with pid $pid — already stopped."
+    log "No process with pid ${pid} -- already stopped."
   fi
   rm -f "$ANVIL_PID_FILE"
 fi
 
 # Fallback: kill anything listening on :8545
 if command -v lsof >/dev/null 2>&1; then
-  port_pid=$(lsof -ti:8545 || true)
+  port_pid="$(lsof -ti:8545 || true)"
   if [ -n "$port_pid" ]; then
-    log "Killing leftover process on :8545 (pid $port_pid)…"
+    log "Killing leftover process on :8545 (pid ${port_pid})..."
     kill -9 "$port_pid" 2>/dev/null || true
   fi
 fi

@@ -1,5 +1,66 @@
 # Changelog
 
+## v1.0.0-polish.2 — 2026-05-21 (branch `v1/attestation-layer`)
+
+**Hackathon mode: self-contained demo, no faucet dependency.** When the
+public Base Sepolia faucets gated us out (Coinbase signup broken,
+QuickNode requires mainnet balance), we pivoted to a fully reproducible
+local demo that still runs the **real EAS protocol bytecode** from the
+Anvil fork of Base Sepolia. Recording-ready in two paths.
+
+### Added
+- `scripts/demo-mode.sh` — one-command stack boot. Composes
+  `dev-chain.sh` + `deploy-contracts.sh` + FastAPI uvicorn + Next.js
+  dev server. Idempotent across restarts. Prints a colourful
+  `DEMO READY` block listing every address and URL the recording needs.
+- `scripts/stop-demo-mode.sh` — clean shutdown of all four background
+  processes (web, API, contracts/anvil are torn down via the existing
+  `stop-dev-chain.sh`).
+- `docs/HACKATHON_RECORDING_GUIDE.md` (~280 LOC) — two recording paths:
+  - **Path B (recommended)**: terminal-only 60 s record. Two e2e
+    scripts + one `cast code` proof + `git log`. Zero browser variables.
+  - **Path A (cinematic)**: 90 s UI + MetaMask + wallet flow. Includes
+    one-time MetaMask network + buyer-account import.
+  Each path has a per-second timing table, voiceover lines, and a
+  one-liner backup if anything misbehaves mid-recording.
+
+### Updated
+- `scripts/deploy-contracts.sh` — removed `--silent` from the
+  `forge script` call. The script parses `MockUSDC: 0x…` and
+  `SettlementEscrow: 0x…` lines from stdout; `--silent` was suppressing
+  exactly those lines, so the wrapper failed to capture addresses.
+- `scripts/stop-dev-chain.sh` — replaced the `…` ellipsis (U+2026) in
+  log strings with ASCII `...`. Bash on macOS misparsed `$pid…` under
+  `set -u` and aborted with `pid: unbound variable`. ASCII keeps the
+  scripts portable across shells.
+- `README.md` — quickstart section rewritten around `./scripts/demo-mode.sh`
+  + the recording guide pointer. New explainer block: "Why this works
+  without a faucet" — Anvil fork inherits real EAS bytecode (4,121 bytes)
+  at `0x4200…0021`.
+- Archived three legacy v0.5 artefacts that referenced the WhatsApp
+  bridge (now in `archive/v0.5/`):
+  `scripts/docker-up.sh`, `scripts/docker-smoke.sh`, the entire `infra/`
+  folder (`docker-compose.yml`).
+
+### Verified end-to-end on a fresh `demo-mode.sh` boot
+- Happy path  — UID `0x42dfd8f7a368c8ac50a863bcea8f651d4f05fbffe2dd97384dce9f031b70be3c`
+  - tx `0x888af9edfb74fa70cf36451180ffe2dc1c40f7583183fbdd7e0150d1aee16830`
+  - Payee final balance **580,000,000 mUSDC base units (580 USDC)**
+- Reject path — UID `0xd32db699e19025594ef92fa8b3d147602cd04ed7dc0d4bbc8cc51666fa6a31a6`
+  - tx `0x638fe5840f57c6c93034e481aaadde76ad5795557c1f28586027f892a2b8bf21`
+  - Impostor balance **0**, buyer refund **280,000,000 base units**
+- `forge test` = 33/33; `uv run pytest -q` = 62/62; slither 0 findings
+  (CI confirms on every push to `v1/attestation-layer`).
+
+### Hackathon submission posture
+- Live demo: `./scripts/demo-mode.sh` on the laptop + 60 s recorded video
+  per `docs/HACKATHON_RECORDING_GUIDE.md` Path B.
+- Real-testnet deploy (Phase 3): deferred until any Base Sepolia faucet
+  cooperates. README + ATTESTATION_SCHEMA + ROADMAP all already explain
+  this is a one-line env-var flip.
+- Public Vercel + Render deploys (Phase 4): scoped out of v1.0.0;
+  re-enter as Q3 2026 issues post-hackathon.
+
 ## v1.0.0-polish.1 — 2026-05-20 (branch `v1/attestation-layer`)
 
 Finalization polish on top of the `v1.0.0` tag. No tag bump yet — these
