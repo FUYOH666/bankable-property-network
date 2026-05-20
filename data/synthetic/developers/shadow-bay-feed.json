@@ -1,0 +1,30 @@
+{
+  "data_classification": "synthetic_demo_data",
+  "developer_id": "developer-shadow-bay",
+  "developer_name": "Shadow Bay Ventures Co., Ltd.",
+  "project_name": "Shadow Bay Prelaunch Residences",
+  "source_of_truth": "not_connected_off_platform",
+  "last_updated": "2026-05-15",
+  "permit_status": "pending",
+  "eia_status": "not_cleared",
+  "sales_status": "prelaunch_active",
+  "construction_permit_issued": false,
+  "authorized_payees": [],
+  "marketing_payee_claimed": "Shadow Bay Holdings (BVI) Ltd.",
+  "units_available": [
+    {
+      "unit_type": "2BR prelaunch",
+      "floor_range": "TBD",
+      "price_thb": 9800000,
+      "status": "prelaunch_booking"
+    }
+  ],
+  "payment_terms": {
+    "booking_deposit_pct": 15,
+    "installment_months": 0,
+    "foreign_buyer_notes": "Agent claims early-bird discount if deposit sent within 48 hours."
+  },
+  "installment_schedule_summary": "Undocumented. Off-platform agents promise flexible terms not in any verified feed.",
+  "freshness_policy_hours": null,
+  "network_status": "off_platform"
+}
