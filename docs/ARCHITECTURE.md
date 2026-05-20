@@ -7,7 +7,8 @@ Bankable Property Network is designed as bank-led trusted settlement infrastruct
 ## Components
 
 - `apps/web`: Next.js demo UI — Pitch Screen, **Supplier Contrast**, Developer Knowledge Hub, Settlement Flow panel, Yield Plan, Guided Simulation, Scenario Simulator.
-- `apps/api`: FastAPI backend for Developer Knowledge Hub, Property Shield, Capital Bankability Map, route comparison, human approval, and evidence pack generation.
+- `apps/api`: FastAPI backend for Developer Knowledge Hub, Property Shield, Capital Bankability Map, route comparison, human approval, evidence pack generation, and **live buyer consultation** (`POST /api/consult/message`).
+- `services/whatsapp-bridge`: Go bridge — WhatsApp → consult API (`channel=whatsapp`).
 - `apps/buyer-agent` (roadmap): LangGraph.js buyer consultation service — nonlinear discovery layer; calls API as policy-controlled tools.
 - `data/synthetic`: synthetic property, developer, policy, and settlement documents used for the demo knowledge base.
 - `infra/docker-compose.yml`: local Qdrant vector database for RAG.
@@ -64,7 +65,26 @@ flowchart TB
   buyerLayer -->|"tool calls API"| bankLayer
 ```
 
-Runtime: **LangGraph.js** (primary). Stack evaluation: [`AGENT_STACK_EVALUATION.md`](AGENT_STACK_EVALUATION.md).
+## Channel adapters (buyer consult)
+
+One consult brain — many distribution surfaces. Adapters translate inbound messages to `POST /api/consult/message` with `session_id`, `channel`, and `message`. See [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md).
+
+```mermaid
+flowchart LR
+  wa[WhatsApp_bridge]
+  web[Web_panel]
+  curl[API_curl]
+  tg[Telegram_roadmap]
+  line[LINE_roadmap]
+  core[POST_api_consult_message]
+  wa --> core
+  web --> core
+  curl --> core
+  tg -.-> core
+  line -.-> core
+```
+
+Runtime: **LangGraph.js** (primary roadmap). **FastAPI consult** is live MVP. Stack evaluation: [`AGENT_STACK_EVALUATION.md`](AGENT_STACK_EVALUATION.md).
 
 ## AI As Operational Scaling Layer
 

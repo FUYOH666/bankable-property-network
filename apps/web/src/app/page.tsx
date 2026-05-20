@@ -1,3 +1,4 @@
+import { BuyerConsultationPanel } from "./buyer-consultation-panel";
 import { ClosingPassportPanel } from "./closing-passport-panel";
 import { DeveloperKnowledgeHub } from "./developer-knowledge-hub";
 import { GuidedDealSimulation } from "./guided-deal-simulation";
@@ -77,6 +78,10 @@ export default function Page() {
       <GuidedDealSimulation />
 
       <ScenarioSimulator />
+
+      <section className="grid">
+        <BuyerConsultationPanel />
+      </section>
 
       <section className="grid steps">
         {demoSteps.map((step) => (

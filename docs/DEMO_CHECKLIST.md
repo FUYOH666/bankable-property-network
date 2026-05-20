@@ -34,6 +34,9 @@ curl http://localhost:8080/api/demo/evidence-pack
 curl http://localhost:8080/api/demo/post-closing-yield-plan
 curl http://localhost:8080/api/scenarios
 curl http://localhost:8080/api/rag/health
+curl http://localhost:8080/api/consult/healthz
+curl http://localhost:8080/api/consult/contour/healthz
+curl -X POST http://localhost:8080/api/consult/message -H 'Content-Type: application/json' -d '{"session_id":"smoke","message":"payee mismatch","channel":"web"}'
 curl http://localhost:8080/api/scenarios/swift-clean-route/run
 curl http://localhost:8080/api/scenarios/cash-red-route/run
 curl "http://localhost:8080/api/scenarios/usdt-mixed-route/rag-run?mode=fallback"
@@ -50,6 +53,17 @@ curl "http://localhost:8080/api/scenarios/usdt-mixed-route/rag-run"
 
 RAG health should expose tier metadata (`deployment_tier`, `embedding_tier`, `llm_tier`). Enterprise tiers: [`AI_SERVICE_TIERS.md`](AI_SERVICE_TIERS.md).
 
+## WhatsApp Consultation (optional booth)
+
+Before the booth opens:
+
+```bash
+docker compose -f infra/docker-compose.yml up -d bankable-api whatsapp-bridge
+open http://localhost:8020/qr
+```
+
+Scan QR once with WhatsApp → Linked devices. Full runbook: [`WHATSAPP_CONSULT_DEMO.md`](WHATSAPP_CONSULT_DEMO.md).
+
 ## Presenter Talking Points (optional)
 
 - **Registration copy:** [`PROJECT_DESCRIPTION.md`](PROJECT_DESCRIPTION.md) — problem, solution, value, copy-paste blocks for platform forms.
@@ -57,7 +71,7 @@ RAG health should expose tier metadata (`deployment_tier`, `embedding_tier`, `ll
 - **Local AI contour (30 sec):** [`LOCAL_AI_CONTOUR.md`](LOCAL_AI_CONTOUR.md) · [`HACKATHON_RUNBOOK.md`](HACKATHON_RUNBOOK.md)
 - **Nonlinear decision graph (30 sec):** [`NONLINEAR_DECISION_GRAPH.md`](NONLINEAR_DECISION_GRAPH.md) · [`BUYER_CONSULTATION_AGENT.md`](BUYER_CONSULTATION_AGENT.md)
 
-Note: Buyer Consultation Agent chat is **roadmap only** — not live in hackathon UI.
+Note: Buyer Consultation is **live** via API, web panel, and WhatsApp bridge — see [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md), [`WHATSAPP_CONSULT_DEMO.md`](WHATSAPP_CONSULT_DEMO.md). LangGraph.js orchestration remains roadmap.
 
 ## Show In Demo (Money Infrastructure Order)
 

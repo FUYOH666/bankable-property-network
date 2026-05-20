@@ -1,23 +1,20 @@
 """RAG evidence pipeline for Bankable Property OS.
 
 Demo stack: Qdrant + BGE-M3 embedding + BGE reranker (local MacBook contour).
-Production tier: vLLM gateway + Qwen-class embeddings — see docs/AI_SERVICE_TIERS.md.
-LLM instruct is not invoked in the retrieve path today; generation is roadmap.
+Consult agent uses the same retrieve path via consult_retrieval.py.
 """
 
 import hashlib
 import os
 import re
 import uuid
-from pathlib import Path
 from typing import Any
 
 import httpx
 
+from app.paths import consult_knowledge_root, synthetic_root
 from app.services.scenarios import get_scenario_detail, run_scenario
 
-
-from app.paths import synthetic_root
 DEFAULT_COLLECTION = "bankable_property_network"
 SUPPORTED_SUFFIXES = {".md", ".json"}
 
@@ -29,6 +26,27 @@ def _settings() -> dict[str, str]:
         "reranker_url": os.getenv("LOCAL_AI_RERANKER_BASE_URL", "http://localhost:9002"),
         "collection": os.getenv("QDRANT_COLLECTION", DEFAULT_COLLECTION),
     }
+
+
+def collect_consult_kb_documents() -> list[dict[str, str]]:
+    documents: list[dict[str, str]] = []
+    kb_root = consult_knowledge_root()
+    if not kb_root.is_dir():
+        return documents
+    for path in sorted(kb_root.glob("*.md")):
+        if path.name == "DEMO_NOTICE.md":
+            continue
+        text = path.read_text(encoding="utf-8")
+        doc_id = f"consult_kb/{path.name}"
+        documents.append(
+            {
+                "id": doc_id,
+                "kind": "consult_kb",
+                "text": text,
+                "source_path": f"data/consult_knowledge/realestate-demo/{path.name}",
+            }
+        )
+    return documents
 
 
 def collect_synthetic_documents() -> list[dict[str, str]]:
@@ -49,15 +67,23 @@ def collect_synthetic_documents() -> list[dict[str, str]]:
     return documents
 
 
+def collect_all_rag_documents() -> list[dict[str, str]]:
+    return collect_synthetic_documents() + collect_consult_kb_documents()
+
+
 def rag_health() -> dict[str, Any]:
     settings = _settings()
     deployment_tier = os.getenv("BANKABLE_AI_TIER", "demo_local")
+    synthetic_count = len(collect_synthetic_documents())
+    consult_kb_count = len(collect_consult_kb_documents())
     return {
         "collection": settings["collection"],
         "qdrant_url_configured": bool(settings["qdrant_url"]),
         "embedding_url_configured": bool(settings["embedding_url"]),
         "reranker_url_configured": bool(settings["reranker_url"]),
-        "synthetic_document_count": len(collect_synthetic_documents()),
+        "synthetic_document_count": synthetic_count,
+        "consult_kb_document_count": consult_kb_count,
+        "total_document_count": synthetic_count + consult_kb_count,
         "deployment_tier": deployment_tier,
         "embedding_tier": "bge-m3",
         "llm_tier": "lm_studio_optional",
@@ -85,9 +111,15 @@ def _point_id(document_id: str) -> str:
 
 
 def ingest_synthetic_documents(dry_run: bool = False) -> dict[str, Any]:
-    documents = collect_synthetic_documents()
+    documents = collect_all_rag_documents()
     if dry_run:
-        return {"mode": "dry_run", "document_count": len(documents), "collection": _settings()["collection"]}
+        return {
+            "mode": "dry_run",
+            "document_count": len(documents),
+            "synthetic_document_count": len(collect_synthetic_documents()),
+            "consult_kb_document_count": len(collect_consult_kb_documents()),
+            "collection": _settings()["collection"],
+        }
 
     if not documents:
         return {"mode": "live", "document_count": 0, "collection": _settings()["collection"], "status": "empty"}
@@ -121,6 +153,8 @@ def ingest_synthetic_documents(dry_run: bool = False) -> dict[str, Any]:
     return {
         "mode": "live",
         "document_count": len(documents),
+        "synthetic_document_count": len(collect_synthetic_documents()),
+        "consult_kb_document_count": len(collect_consult_kb_documents()),
         "collection": settings["collection"],
         "vector_size": vector_size,
         "status": "indexed",
@@ -147,10 +181,12 @@ def _tokenize(text: str) -> set[str]:
     return {token for token in re.findall(r"[a-zA-Z0-9]+", text.lower()) if len(token) > 2}
 
 
-def _fallback_retrieve(query: str, limit: int = 6) -> list[dict[str, Any]]:
+def _fallback_retrieve(query: str, limit: int = 6, kinds: set[str] | None = None) -> list[dict[str, Any]]:
     query_tokens = _tokenize(query)
     scored: list[dict[str, Any]] = []
-    for doc in collect_synthetic_documents():
+    for doc in collect_all_rag_documents():
+        if kinds and doc["kind"] not in kinds:
+            continue
         doc_id = doc["id"].lower()
         doc_tokens = _tokenize(f"{doc['id']} {doc['text']}")
         overlap = query_tokens & doc_tokens
@@ -174,13 +210,30 @@ def _fallback_retrieve(query: str, limit: int = 6) -> list[dict[str, Any]]:
     return sorted(scored, key=lambda item: item["score"], reverse=True)[:limit]
 
 
-def _qdrant_search(query: str, limit: int = 8) -> list[dict[str, Any]]:
+def _qdrant_filter_for_kinds(kinds: set[str]) -> dict[str, Any] | None:
+    if not kinds:
+        return None
+    if len(kinds) == 1:
+        kind = next(iter(kinds))
+        return {"must": [{"key": "kind", "match": {"value": kind}}]}
+    return {"must": [{"key": "kind", "match": {"any": sorted(kinds)}}]}
+
+
+def _qdrant_search(
+    query: str,
+    limit: int = 8,
+    kinds: set[str] | None = None,
+) -> list[dict[str, Any]]:
     settings = _settings()
     query_vector = _embed([query])[0]
+    payload: dict[str, Any] = {"vector": query_vector, "limit": limit, "with_payload": True}
+    q_filter = _qdrant_filter_for_kinds(kinds) if kinds else None
+    if q_filter:
+        payload["filter"] = q_filter
     with httpx.Client(timeout=30) as client:
         response = client.post(
             f"{settings['qdrant_url']}/collections/{settings['collection']}/points/search",
-            json={"vector": query_vector, "limit": limit, "with_payload": True},
+            json=payload,
         )
         response.raise_for_status()
     points = response.json().get("result") or response.json().get("points") or []
@@ -238,6 +291,34 @@ def retrieve_evidence(query: str, mode: str = "auto", limit: int = 6) -> tuple[s
         if mode == "live":
             raise
         return "deterministic_fallback", _fallback_retrieve(query, limit=limit), f"{type(exc).__name__}: {exc}"
+
+
+def retrieve_consult_evidence(
+    query: str,
+    mode: str = "auto",
+    limit: int = 6,
+    scope: str = "project",
+) -> tuple[str, list[dict[str, Any]], str | None]:
+    if scope == "settlement":
+        kinds = {"consult_kb", "policies"}
+    else:
+        kinds = {"consult_kb"}
+
+    if mode == "fallback":
+        return "deterministic_fallback", _fallback_retrieve(query, limit=limit, kinds=kinds), None
+
+    try:
+        evidence = _qdrant_search(query, limit=max(limit, 8), kinds=kinds)
+        reranked = _rerank(query, evidence, limit=limit)
+        return "qdrant_embedding_reranker", reranked or evidence[:limit], None
+    except Exception as exc:
+        if mode == "live":
+            raise
+        return (
+            "deterministic_fallback",
+            _fallback_retrieve(query, limit=limit, kinds=kinds),
+            f"{type(exc).__name__}: {exc}",
+        )
 
 
 def run_scenario_with_rag(scenario_id: str, mode: str = "auto") -> dict[str, Any] | None:

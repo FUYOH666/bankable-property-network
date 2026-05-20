@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.demo_case import ANCHOR_CASE
 from app.logging_config import configure_logging
+from app.schemas.consult import ConsultHealthResponse, ConsultMessageRequest, ConsultMessageResponse
 from app.schemas.demo import (
     ClosingPassportResponse,
     DeveloperKnowledgeHubResponse,
@@ -15,6 +16,9 @@ from app.schemas.demo import (
     PostClosingYieldPlanResponse,
     SupplierContrastResponse,
 )
+from app.services.consult_contour import contour_health
+from app.services.consult_knowledge import knowledge_health
+from app.services.buyer_consultation import consult_health, handle_consult_message
 from app.services.closing_passport_demo import build_closing_passport_demo
 from app.services.data_loader import DataLoadError
 from app.services.developer_knowledge import build_developer_knowledge_hub
@@ -273,3 +277,28 @@ def get_rag_health() -> dict[str, object]:
 @app.post("/api/rag/ingest")
 def post_rag_ingest(dry_run: bool = False) -> dict[str, object]:
     return ingest_synthetic_documents(dry_run=dry_run)
+
+
+@app.get("/api/consult/contour/healthz")
+def get_consult_contour_healthz() -> dict[str, object]:
+    return contour_health()
+
+
+@app.get("/api/consult/knowledge/healthz")
+def get_consult_knowledge_healthz() -> dict[str, object]:
+    return knowledge_health()
+
+
+@app.get("/api/consult/healthz", response_model=ConsultHealthResponse)
+def get_consult_healthz() -> dict[str, object]:
+    return consult_health()
+
+
+@app.post("/api/consult/message", response_model=ConsultMessageResponse)
+def post_consult_message(body: ConsultMessageRequest) -> dict[str, object]:
+    logger.info(
+        "Consultation message session=%s channel=%s",
+        body.session_id,
+        body.channel,
+    )
+    return handle_consult_message(body.session_id, body.message, body.channel)

@@ -4,7 +4,7 @@
 audience: hackathon_registration_reviewers
 language: en
 project: Bankable Property Network
-version: 0.5.5
+version: 0.5.13
 author: Aleksandr Mordvinov
 author_url: https://github.com/FUYOH666
 data: synthetic_demo_only
@@ -76,10 +76,11 @@ Live demo panels (synthetic data):
 5. **Post-Closing Yield Plan** — long-term asset operations vision on bank rails.
 6. **Guided Deal Simulation** — buyer → bank → compliance → passport workflow.
 7. **Scenario Simulator** — multiple synthetic paths (capital, property, agent, developer supply) with RAG trace or explicit fallback.
+8. **Buyer Consultation** — live multi-channel API (`POST /api/consult/message`): web panel, WhatsApp booth demo (4-turn arc incl. USDT purchase pitch), curl; Landmark Sukhumvit consult KB; Qdrant + BGE + LM Studio when contour up; never approves deposits. Telegram, Line, email, voice — roadmap adapters ([`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md)).
 
-**Roadmap only (documented, not live in UI):**
+**Roadmap only (documented, not full UI):**
 
-- Buyer Consultation Agent (nonlinear buyer dialogue, LangGraph.js)
+- LangGraph.js Buyer Consultation graph (`apps/buyer-agent/` not scaffolded)
 - Settlement Branch Explorer (parallel route scoring UI)
 
 ---
@@ -112,7 +113,7 @@ AI does **not** decide whether money moves. AI helps regulated structures review
 |-------|--------|
 | Author | [Aleksandr Mordvinov](https://github.com/FUYOH666) |
 | Repository | https://github.com/FUYOH666/bankable-property-network |
-| Live demo | _[add deployed URL when available]_ |
+| Live demo | https://scanovich.ai/seablockchainweek/ (hackathon static vitrine; may be removed after event) |
 | Documentation | See `README.md`, `docs/PITCH_SCRIPT.md`, `docs/HACKATHON_RUNBOOK.md` |
 
 ---
@@ -143,7 +144,9 @@ Banks capture and retain high-value cross-border property flow with audit-ready 
 
 Aleksandr Mordvinov — https://github.com/FUYOH666
 
----
+### Demo URL (registration form)
+
+https://scanovich.ai/seablockchainweek/
 
 ## Related Docs
 

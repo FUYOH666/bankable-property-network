@@ -1,6 +1,6 @@
 # Validation Report
 
-> Updated 2026-05-20 — reflects **v0.5.5** (Developer Supply Demo: off-platform vs tier-1 contrast).
+> Updated 2026-05-20 — reflects **v0.5.13** (full project audit, Tier A doc sync). Full audit: [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md).
 
 ## Fresh Verification
 
@@ -11,60 +11,55 @@ Commands:
 ```bash
 cd apps/api && uv run pytest -q
 cd apps/web && pnpm run build
-# API on :8080
-curl http://localhost:8080/healthz
-curl http://localhost:8080/api/demo/closing-passport
-curl http://localhost:8080/api/demo/developer-knowledge-hub
-curl http://localhost:8080/api/demo/supplier-contrast
-curl http://localhost:8080/api/demo/guided-simulation
-curl http://localhost:8080/api/demo/evidence-pack
-curl http://localhost:8080/api/demo/post-closing-yield-plan
-curl http://localhost:8080/api/scenarios
-curl http://localhost:8080/api/scenarios/prelaunch-off-platform-route/run
-curl http://localhost:8080/api/scenarios/tier-one-landmark-route/run
-curl "http://localhost:8080/api/scenarios/usdt-mixed-route/rag-run?mode=fallback"
-curl http://localhost:8080/api/rag/health
+cd apps/api && CONSULT_RETRIEVAL_MODE=keyword uv run python ../../scripts/run_consult_dialogue_matrix.py --offline
+uv run python scripts/run_scenario_matrix.py --api-url http://localhost:8080
+./scripts/docker-smoke.sh   # when Docker stack up
+curl http://localhost:8080/api/consult/contour/healthz
+curl -X POST "http://localhost:8080/api/rag/ingest?dry_run=true"
 ```
 
 Results:
 
-- Backend: **37 tests passed** (+4 supplier contrast / new scenarios).
-- Frontend: Next.js production build passed (includes `supplier-contrast-demo.tsx`).
-- Smoke matrix: **12/12 endpoints HTTP 200** (added `supplier-contrast`, two new scenario runs).
-- Supplier contrast: `off_platform.developer` = Shadow Bay; `on_network.feed_snapshot.permit_status` = `issued`.
-- New scenarios: `prelaunch-off-platform-route` → `closing_passport_status=not_generated`; `tier-one-landmark-route` → `approve` + passport generated.
-- Developer Knowledge Hub: `knowledge_vs_agent_gap.status` = `mismatch_detected`.
-- RAG fallback: `retrieval_mode` = `deterministic_fallback` (explicit, no silent degrade).
-- Scenarios: **8** returned from `GET /api/scenarios`.
-- API version config aligned to **0.5.5** (`config.py`, `.env.example`).
+- Backend: **64 tests passed** (incl. consult, contour, retrieval, dialogue matrix).
+- Consult dialogue matrix (offline): **17/17 turns**, 9 scripts — [`CONSULT_DIALOGUE_SIMULATION_REPORT.md`](CONSULT_DIALOGUE_SIMULATION_REPORT.md).
+- Scenario matrix: **8/8** — [`SCENARIO_SIMULATION_REPORT.md`](SCENARIO_SIMULATION_REPORT.md).
+- Frontend: Next.js production build passed.
+- API version: **0.5.13** (`config.py`, `.env.example`).
+- Buyer Consultation: live via FastAPI, web panel, WhatsApp bridge; USDT/cash purchase pitch; explicit fallback modes.
+- RAG ingest (dry-run): **46 documents** (39 synthetic + 7 consult_kb).
+- Consult contour: `all_ready: true` when Qdrant + BGE + LM Studio up.
 
-## Demo Flow Walkthrough (expected gaps)
+## Demo Flow Walkthrough
 
 | UI step | Status | Notes |
 |---------|--------|-------|
-| Pitch Screen | OK | Static + thesis; **Why Developers Join** card |
+| Pitch Screen | OK | Static thesis; outcomes not API-driven (P1 gap) |
 | Supplier Contrast | OK | Live `/api/demo/supplier-contrast` |
-| Developer Knowledge Hub | OK | Live API |
+| Developer Knowledge Hub | OK | Live API; WhatsApp/web channels `live` in payload |
 | Settlement Flow panel | OK | Single `/api/demo/closing-passport` fetch |
 | Yield Plan | OK | Vision stub |
-| Guided Simulation | OK | Linear 6-step (future LangGraph target) |
-| Scenario Simulator | OK | 8 scenarios; RAG trace or fallback |
-| Buyer Consultation Agent chat | **Not live** | Doc-only; `apps/buyer-agent/` not scaffolded |
-| Settlement Branch Explorer UI | **Not live** | Documented in `NONLINEAR_DECISION_GRAPH.md` |
+| Guided Simulation | OK | Linear 6-step |
+| Scenario Simulator | OK | 8 scenarios; RAG trace or explicit fallback |
+| Buyer Consultation | **Live** | Web + API + WhatsApp; 4-turn jury arc |
+| Settlement Branch Explorer UI | **Roadmap** | `NONLINEAR_DECISION_GRAPH.md` |
 
-Presenter lines verified in docs: local AI contour + nonlinear decision graph (`HACKATHON_RUNBOOK.md`, `DEMO_CHECKLIST.md`).
+## Consult verification
+
+```bash
+curl -s -X POST http://localhost:8080/api/consult/message \
+  -H 'Content-Type: application/json' \
+  -d '{"session_id":"validation","message":"а как покупать? у меня usdt","channel":"whatsapp"}' | jq '{intent, retrieval_mode, tools_used}'
+```
+
+Expected: `intent: mixed`; `scenario_hint:usdt-mixed-route` in tools; no prompt leak in reply.
 
 ## Product Fit Check
 
-The MVP matches the money infrastructure thesis:
-
 - **Primary customer:** banking anchor and regulated structures.
-- **Bankable Property OS** is the operating layer; **Closing Passport** is the first module.
-- **Developer Knowledge Hub** is upstream SSOT — agent payee vs developer feed.
-- **Settlement Flow panel** shows live API data: Property Shield, Capital Map, Route Comparison, Bank Counter-Offer, Closing Passport hash.
-- **Agent architecture (0.5.4):** LangGraph.js primary; buyer consultation + settlement graph documented; code scaffold is next build.
-- **Social bonus:** buyer avoids irreversible deposit to wrong entity when rails exist.
-- **Web3:** metadata-only evidence attestation, not property ownership tokenization.
+- **Consult = distribution** — same brain on WhatsApp and web.
+- **Developer Knowledge Hub** — upstream SSOT vs agent payee.
+- **LangGraph.js** documented; FastAPI consult is live MVP.
+- **Web3:** metadata-only evidence attestation.
 
 ## Scenario Matrix (8 scenarios)
 
@@ -79,14 +74,12 @@ The MVP matches the money infrastructure thesis:
 | prelaunch-off-platform-route | green | escalate/reject | not_generated |
 | tier-one-landmark-route | green | approve | generated |
 
-## Staff Review
+## Verdict
 
-Historical baseline: [`STAFF_REVIEW_0.5.4.md`](STAFF_REVIEW_0.5.4.md) (pre–0.5.5). **Current audit entry:** [`AI_AUDIT_INDEX.md`](AI_AUDIT_INDEX.md).
-
-**Verdict:** Ready for hackathon demo. No blockers. Next product build: `apps/buyer-agent/` LangGraph scaffold.
+Ready for hackathon demo. Consult contour + dialogue matrix green. See [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md) for P0/P1/P2 backlog.
 
 ## Related
 
-- Live status: `docs/FINAL_STATUS_AND_NEXT_ACTIONS.md`
-- Agent handoff: `docs/HANDOFF.md`
-- Presenter flow: `docs/DEMO_CHECKLIST.md`
+- [`FINAL_STATUS_AND_NEXT_ACTIONS.md`](FINAL_STATUS_AND_NEXT_ACTIONS.md)
+- [`HANDOFF.md`](HANDOFF.md)
+- [`AI_AUDIT_INDEX.md`](AI_AUDIT_INDEX.md)

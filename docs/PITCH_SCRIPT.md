@@ -38,6 +38,7 @@ The system shows:
 4. Compliance sees evidence and RAG trace.
 5. Closing Passport is generated only for a permitted route.
 6. Post-Closing Yield Plan previews long-term asset operations on bank rails.
+7. **WhatsApp consult** (optional 45s) — 4-turn arc: greeting → price/villa → **USDT purchase pitch** → payee guardrail; same API as web. See [`WHATSAPP_CONSULT_DEMO.md`](WHATSAPP_CONSULT_DEMO.md).
 
 ### Why Banks Care
 
@@ -64,3 +65,5 @@ Everyone is building faster ways to move money. We are building the layer that d
 Most platforms stop when the property is sold. Banks should not. Bankable Property & Yield OS extends Closing Passport into compliant rental operations, verified property managers, and bank-controlled rental income — turning a one-time transaction into a long-term asset relationship.
 
 Settlement OS without truth upstream is incomplete. We connect developer SSOT → verified agents → bank rails → Closing Passport → Yield OS.
+
+**Distribution (15 sec):** WhatsApp and web run the same consult API today; Telegram, Line, email, and voice are thin adapters on the same contract — bank rules unchanged. See [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md).

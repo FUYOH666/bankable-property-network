@@ -6,10 +6,12 @@
 project_name: Bankable Property Network
 operating_layer: Bankable Property OS
 first_module: Closing Passport
-version: 0.5.5
+version: 0.5.13
 author: Aleksandr Mordvinov
 author_github: https://github.com/FUYOH666
 repository_url: https://github.com/FUYOH666/bankable-property-network
+demo_url: https://scanovich.ai/seablockchainweek/
+demo_note: hackathon_static_vitrine_may_be_removed_post_event
 data_classification: synthetic_demo_data
 primary_customer: banking_anchor_and_regulated_structures
 social_bonus: buyer_deposit_protection_when_infrastructure_works
@@ -40,8 +42,8 @@ Bank-grade **money infrastructure** for Thailand property — not a listing mark
 | Scenario Simulator (8 synthetic paths) | **Live** | `GET /api/scenarios`, `scenario-simulator.tsx` |
 | Guided Deal Simulation | **Live** | `GET /api/demo/guided-simulation` |
 | Post-Closing Yield Plan (vision) | **Live stub** | `GET /api/demo/post-closing-yield-plan` |
-| RAG over synthetic corpus | **Live with explicit fallback** | `GET /api/rag/health`, `rag-run?mode=fallback` |
-| Buyer Consultation Agent chat | **Roadmap doc only** | `docs/BUYER_CONSULTATION_AGENT.md` — no `apps/buyer-agent/` code |
+| RAG over synthetic + consult KB corpus | **Live with explicit fallback** | `GET /api/rag/health`, `POST /api/rag/ingest`, `rag-run?mode=fallback` |
+| Buyer Consultation Agent chat | **Live with explicit fallback** | API + WhatsApp + web; Landmark KB; USDT/cash pitch; Qdrant + BGE + rerank + LM Studio when configured; `GET /api/consult/contour/healthz`; dialogue matrix **17/17** offline; LangGraph.js orchestration roadmap |
 | Settlement Branch Explorer UI | **Roadmap doc only** | `docs/NONLINEAR_DECISION_GRAPH.md` |
 | Real developer ERP / permit registry | **Out of scope** | Synthetic JSON feeds only |
 | On-chain property ownership | **Not claimed** | Metadata-only evidence attestation only |
@@ -62,6 +64,9 @@ Bank-grade **money infrastructure** for Thailand property — not a listing mark
 | [`DEMO_CHECKLIST.md`](DEMO_CHECKLIST.md) | Presenter flow + smoke curls |
 | [`SCENARIO_MATRIX.md`](SCENARIO_MATRIX.md) | All 8 scenario intents and expected outputs |
 | [`SYNTHETIC_CORPUS.md`](SYNTHETIC_CORPUS.md) | Synthetic data inventory |
+| [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md) | Multi-channel consult adapters (WhatsApp live) |
+| [`CONSULT_DIALOGUE_SIMULATION_REPORT.md`](CONSULT_DIALOGUE_SIMULATION_REPORT.md) | Consult dialogue regression evidence (17/17) |
+| [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md) | Full project audit — LIVE vs ROADMAP, backlog |
 | [`DEVELOPER_SUPPLY_DEMO.md`](DEVELOPER_SUPPLY_DEMO.md) | Shadow Bay vs Bangkok Landmark supplier narrative |
 
 ### Tier B — Presenter / pitch
@@ -99,7 +104,7 @@ Bank-grade **money infrastructure** for Thailand property — not a listing mark
 ## 4. Key invariants (automated checks)
 
 ```bash
-cd apps/api && uv run pytest -q                    # expect 37+ passed
+cd apps/api && uv run pytest -q                    # expect 64 passed
 cd apps/web && pnpm run build                      # expect success
 curl -s http://localhost:8080/healthz              # expect 200
 curl -s http://localhost:8080/api/demo/supplier-contrast | jq .module
@@ -116,7 +121,7 @@ curl -s http://localhost:8080/api/demo/developer-knowledge-hub | jq .knowledge_v
 
 ---
 
-## 5. Synthetic data map (0.5.5)
+## 5. Synthetic data map (0.5.13)
 
 ```
 data/synthetic/
@@ -127,7 +132,9 @@ data/synthetic/
   projects/projects.json          # incl. project-shadow-red, project-landmark-tower
   scenarios/scenarios.json        # 8 end-to-end paths
   documents/                      # RAG corpus incl. prelaunch + tier-one packs
-  policies/                       # commission model, prelaunch sales, developer knowledge
+  policies/                       # incl. capital_routes_buyer_pitch, thailand_property_reference_links
+data/consult_knowledge/realestate-demo/   # project sales KB (consult-only RAG filter: kind=consult_kb)
+data/consult_dialogues/                   # dialogue regression fixtures (dialogue_matrix.yaml)
 ```
 
 All files: `data_classification: synthetic_demo_data`. No real PII, bank statements, or wallet keys in repo.
@@ -151,7 +158,7 @@ All files: `data_classification: synthetic_demo_data`. No real PII, bank stateme
 ## 7. Claims auditors should reject if found in submissions
 
 - Real Sansiri, SCB, or named Thai developer **partnership/endorsement**
-- Live Buyer Consultation Agent or WhatsApp/Telegram channels in demo UI
+- Live Buyer Consultation via **API + WhatsApp bridge + web fallback** with full local AI contour (Qdrant + BGE + LM Studio, explicit keyword fallback); LangGraph.js orchestration still roadmap
 - Property tokenization or on-chain title transfer
 - Production ERP or government permit API integration
 - TailScale IPs, internal hostnames, or secrets in public docs
@@ -168,17 +175,19 @@ All files: `data_classification: synthetic_demo_data`. No real PII, bank stateme
 6. Post-Closing Yield Plan  
 7. Guided Deal Simulation  
 8. Scenario Simulator  
+9. Buyer Consultation (web / API / WhatsApp) — see [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md)
 
 ---
 
 ## 9. Verification log (reference)
 
-See [`VALIDATION_REPORT.md`](VALIDATION_REPORT.md) — **v0.5.5**: 37 pytest, Next.js build OK, 12/12 smoke endpoints, 8 scenarios.
+See [`VALIDATION_REPORT.md`](VALIDATION_REPORT.md) and [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md) — **v0.5.13**: 64 pytest, dialogue matrix 17/17 offline, 46 RAG docs, consult live LLM when contour up.
 
 ---
 
 ## 10. Related audit docs
 
 - [`DOCS_AUDIT.md`](DOCS_AUDIT.md) — maintainer doc inventory  
-- [`FINAL_STATUS_AND_NEXT_ACTIONS.md`](FINAL_STATUS_AND_NEXT_ACTIONS.md) — human status summary  
+- [`FINAL_STATUS_AND_NEXT_ACTIONS.md`](FINAL_STATUS_AND_NEXT_ACTIONS.md) — human status summary
+- [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md) — full audit, gaps, backlog  
 - [`CHANGELOG.md`](../CHANGELOG.md) — release history  

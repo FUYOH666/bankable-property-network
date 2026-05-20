@@ -110,3 +110,7 @@ It **does** provide settlement readiness, participant verification signals, escr
 | State / brand | Traceable inflows, fewer grey routes, market quality alignment |
 | Verified developer/agent | Differentiation from commission-only intermediaries |
 | Buyer (bonus) | Avoid irreversible deposit to wrong entity; bankable route instead of ad hoc instructions |
+
+## Buyer consult as distribution
+
+The **Buyer Consultation Agent** is how regulated infrastructure meets buyers where they already are — WhatsApp, Line, email, web — without duplicating settlement logic. One API brain (`POST /api/consult/message`); channel adapters are distribution only. **Banks and deterministic rules decide** whether money moves; consult explains project facts and surfaces bank-tool evidence. See [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md).

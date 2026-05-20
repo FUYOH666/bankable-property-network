@@ -43,6 +43,8 @@ The demo remains narrow. The anchor case illustrates infrastructure failure when
 
 > developer ERP feed → Developer Knowledge Hub → commission-driven intermediary → unverified settlement instructions → Dubai bank + USDT capital → Property Shield + Capital Map + route comparison → FET-ready Thai bank escrow → Closing Passport → Yield OS vision.
 
+**Distribution:** the same settlement rails are reachable via WhatsApp and web consult today — bank onboarding surface for foreign buyers; Line/Telegram/email/voice share one API contract ([`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md)).
+
 ## Boundary
 
 The network does not replace regulators, lawyers, land offices, KYC providers, or agent licensing. It provides risk-based verification, settlement readiness, escrow controls, and privacy-safe evidence.

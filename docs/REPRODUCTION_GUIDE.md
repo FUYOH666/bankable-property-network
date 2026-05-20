@@ -2,7 +2,7 @@
 
 **Purpose:** rebuild this hackathon MVP from zero, or onboard a parallel team while another track continues the existing repo.
 
-**Current reference version:** 0.5.5 · **Last aligned:** 2026-05-20
+**Current reference version:** 0.5.13 · **Last aligned:** 2026-05-20 · Full audit: [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md)
 
 **Companion docs:** thesis [`MONEY_INFRASTRUCTURE_THESIS.md`](MONEY_INFRASTRUCTURE_THESIS.md) · live status [`HANDOFF.md`](HANDOFF.md) · agent entry [`../AGENTS.md`](../AGENTS.md) · AI audit [`AI_AUDIT_INDEX.md`](AI_AUDIT_INDEX.md)
 
@@ -343,7 +343,7 @@ Match [`DEMO_CHECKLIST.md`](DEMO_CHECKLIST.md):
 
 Before calling MVP complete:
 
-- [ ] `uv run pytest` — target 30+ tests (engines + API + routing edge cases)
+- [ ] `uv run pytest` — target **64** tests (API + consult + scenarios + routing)
 - [ ] `pnpm run build` — no TypeScript errors
 - [ ] All demo endpoints 200 with API running
 - [ ] UI sections load from API (not hardcoded capital/routes)

@@ -16,7 +16,18 @@ data/synthetic/
   banks/
   documents/
   scenarios/
+  policies/                    # incl. consult_channel_policy.md, capital_routes_buyer_pitch.md
+data/consult_knowledge/realestate-demo/   # project sales KB (consult-only RAG filter: kind=consult_kb)
+data/consult_dialogues/                   # dialogue regression fixtures (dialogue_matrix.yaml)
 ```
+
+After adding consult KB or policy docs, re-ingest:
+
+```bash
+curl -X POST http://localhost:8080/api/rag/ingest
+```
+
+Typical ingest count: **39 synthetic + 7 consult_kb = 46 documents** (varies with rglob). Consult project FAQ uses `consult_kb` filter so synthetic `projects/*.json` does not override Landmark Sukhumvit answers.
 
 ## Projects
 

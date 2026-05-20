@@ -37,7 +37,8 @@ flowchart TB
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| Consultation graph | Future `apps/buyer-agent/` | LangGraph.js orchestration |
+| Consultation graph | Future `apps/buyer-agent/` | LangGraph.js orchestration (roadmap) |
+| **Live consult MVP** | `apps/api` → `buyer_consultation.py` | FastAPI — intent routing, RAG, bank tools, LM Studio |
 | LLM | LM Studio `:1234/v1` (demo) | Natural language, schema-bound replies |
 | Evidence tools | BGE + Qdrant via API | Policy/developer corpus retrieval |
 | Bank tools | FastAPI `:8080` | Property Shield, scenarios, developer hub |
@@ -83,26 +84,37 @@ Production tier: LM Studio → **vLLM gateway**; see [`AI_SERVICE_TIERS.md`](AI_
 
 ## Tool Surface
 
-Documented contract for future implementation (not live in hackathon MVP):
+**Live today** in `buyer_consultation.py` (maps to same contract LangGraph will call):
 
 ```text
-get_developer_knowledge_hub()
-  → GET /api/demo/developer-knowledge-hub
+consult_rag_search / consult_kb filter
+  → retrieve_consult_evidence() over data/consult_knowledge/realestate-demo/
 
-retrieve_policy_evidence(query)
-  → RAG retrieve over synthetic corpus (via API wrapper)
+get_developer_knowledge_hub()
+  → build_developer_knowledge_hub() / GET /api/demo/developer-knowledge-hub
+
+supplier_contrast_snapshot()
+  → build_supplier_contrast_demo()
 
 run_scenario_preview(scenario_id)
-  → GET /api/scenarios/{id}/run or rag-run
+  → run_scenario() for settlement hints
 
-get_property_shield_summary()
-  → Derived from closing-passport / settlement flow payload
+POST /api/consult/message
+  → { session_id, channel, message } — web | whatsapp | api (adapters set channel)
+```
 
+**Roadmap** (LangGraph.js in `apps/buyer-agent/`):
+
+```text
 request_human_handoff(reason)
   → Suspend graph; log reason; surface compliance contact
 ```
 
-Each tool returns structured JSON validated against Zod schemas before the LLM synthesizes a buyer-facing reply.
+Each tool returns structured JSON validated before the LLM synthesizes a buyer-facing reply.
+
+## Distribution
+
+One consult brain, many channel adapters — see [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md). WhatsApp and web are live; Telegram, Line, email, and ASR/TTS post the same payload to `/api/consult/message`.
 
 ## Guardrails
 
@@ -152,4 +164,5 @@ Reproduction steps: [`REPRODUCTION_GUIDE.md`](REPRODUCTION_GUIDE.md) Phase J.
 
 - [`NONLINEAR_DECISION_GRAPH.md`](NONLINEAR_DECISION_GRAPH.md) — bank settlement graph
 - [`AGENT_STACK_EVALUATION.md`](AGENT_STACK_EVALUATION.md) — LangGraph.js primary rationale
-- [`JOURNEY_BUYER.md`](JOURNEY_BUYER.md) — buyer journey with consultation step
+- [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md) — multi-channel adapters
+- [`CONSULT_KNOWLEDGE_DEMO.md`](CONSULT_KNOWLEDGE_DEMO.md) — KB layers + dialogue matrix

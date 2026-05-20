@@ -55,7 +55,7 @@ def build_developer_knowledge_hub(
     return {
         "data_classification": "synthetic_demo_data",
         "module": "developer_knowledge_hub",
-        "vision_note": "Strategic extension teaser. Multi-channel agents not live in hackathon MVP.",
+        "vision_note": "WhatsApp and web consult are live; Telegram, email, and voice remain roadmap adapters.",
         "developer": feed["developer_name"],
         "project": feed["project_name"],
         "source_of_truth": feed["source_of_truth"],
@@ -68,7 +68,8 @@ def build_developer_knowledge_hub(
         },
         "consumption_model": "verified_agencies_read_only_from_hub",
         "channel_roadmap": [
-            {"id": "whatsapp", "label": "WhatsApp", "status": "roadmap"},
+            {"id": "web", "label": "Web panel", "status": "live"},
+            {"id": "whatsapp", "label": "WhatsApp", "status": "live"},
             {"id": "telegram", "label": "Telegram", "status": "roadmap"},
             {"id": "email", "label": "Email", "status": "roadmap"},
             {"id": "voice_tts", "label": "Voice assistant (TTS)", "status": "roadmap"},

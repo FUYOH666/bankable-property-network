@@ -187,7 +187,11 @@ def test_developer_knowledge_hub_detects_payee_mismatch() -> None:
     assert body["knowledge_vs_agent_gap"]["developer_authorized_payee"] == "Siam Riverside Living Co., Ltd."
     assert body["knowledge_vs_agent_gap"]["agent_claimed_payee"] == "SRL Holding 2026 Co., Ltd."
     assert body["source_of_truth"] == "developer_erp_feed"
-    assert len(body["channel_roadmap"]) == 4
+    assert len(body["channel_roadmap"]) == 5
+    channels = {item["id"]: item["status"] for item in body["channel_roadmap"]}
+    assert channels["web"] == "live"
+    assert channels["whatsapp"] == "live"
+    assert channels["telegram"] == "roadmap"
 
 
 def test_developer_knowledge_hub_includes_prior_art_reference() -> None:

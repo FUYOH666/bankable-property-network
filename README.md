@@ -1,12 +1,12 @@
 # Bankable Property Network
 
-[![Version](https://img.shields.io/badge/version-0.5.5-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.13-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-FastAPI%20%2B%20Next.js-000)](apps/api)
 
 Bank-grade money infrastructure for Thailand property.
 
-**Author:** [Aleksandr Mordvinov](https://github.com/FUYOH666) · **Repository:** [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network)
+**Author:** [Aleksandr Mordvinov](https://github.com/FUYOH666) · **Repository:** [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network) · **Demo:** [scanovich.ai/seablockchainweek](https://scanovich.ai/seablockchainweek/) _(hackathon vitrine)_
 
 ## Pitch
 
@@ -22,7 +22,7 @@ SCB can be the first banking anchor in the pitch, but the network can expand to 
 
 See `docs/MONEY_INFRASTRUCTURE_THESIS.md` for the full money infrastructure thesis.
 
-**Agent / new chat:** read [`AGENTS.md`](AGENTS.md) and [`docs/HANDOFF.md`](docs/HANDOFF.md) first.
+**Agent / new chat:** read [`AGENTS.md`](AGENTS.md), [`docs/HANDOFF.md`](docs/HANDOFF.md), and [`docs/PROJECT_AUDIT_REPORT.md`](docs/PROJECT_AUDIT_REPORT.md) for full project state.
 
 **Hackathon registration:** copy-paste from [`docs/PROJECT_DESCRIPTION.md`](docs/PROJECT_DESCRIPTION.md).
 
@@ -41,8 +41,32 @@ The demo shows:
 5. Post-Closing Yield Plan shows Bankable Property & Yield OS vision.
 6. Guided Deal Simulation walks buyer → bank → compliance → passport.
 7. Scenario Simulator runs eight synthetic capital/property/agent/supply scenarios with RAG trace.
+8. **Buyer Consultation** — multi-channel API (`channel` param), WhatsApp live, web panel; Landmark Sukhumvit consult KB; USDT/cash purchase pitch with prompt-leak guard; Qdrant + BGE + LM Studio contour. See [`docs/DISTRIBUTION_CHANNELS.md`](docs/DISTRIBUTION_CHANNELS.md), [`docs/WHATSAPP_CONSULT_DEMO.md`](docs/WHATSAPP_CONSULT_DEMO.md), [`docs/CONSULT_DIALOGUE_SIMULATION_REPORT.md`](docs/CONSULT_DIALOGUE_SIMULATION_REPORT.md).
 
 Guided Simulation and Scenario Simulator extend the anchor case; steps 2–4 are the core money-infrastructure path.
+
+## Docker (API + WhatsApp — start here for booth)
+
+```bash
+chmod +x scripts/docker-up.sh scripts/docker-smoke.sh
+./scripts/docker-up.sh
+open http://localhost:8020/qr    # scan with WhatsApp → Linked devices
+./scripts/docker-smoke.sh        # API + consult + scenario smoke
+```
+
+Full guide: [`docs/DOCKER_QUICKSTART.md`](docs/DOCKER_QUICKSTART.md) · WhatsApp booth: [`docs/WHATSAPP_CONSULT_DEMO.md`](docs/WHATSAPP_CONSULT_DEMO.md).
+
+Full local AI contour: [`scripts/start-full-ai-contour.sh`](scripts/start-full-ai-contour.sh) · [`docs/LOCAL_AI_CONTOUR.md`](docs/LOCAL_AI_CONTOUR.md).
+
+Consult dialogue regression (17/17 offline, 9 scripts):
+
+```bash
+cd apps/api && CONSULT_RETRIEVAL_MODE=keyword uv run python ../../scripts/run_consult_dialogue_matrix.py --offline
+```
+
+```bash
+uv run python scripts/run_scenario_matrix.py --api-url http://localhost:8080
+```
 
 ## Network Layers
 
@@ -91,16 +115,19 @@ Nonlinear orchestration for bank settlement and buyer consultation — **LangGra
 - `docs/NONLINEAR_DECISION_GRAPH.md`: Settlement Branch Explorer / bank decision graph.
 - `docs/BUYER_CONSULTATION_AGENT.md`: nonlinear buyer consultation agent (LangGraph.js roadmap).
 - `docs/AGENT_STACK_EVALUATION.md`: agent framework filter; LangGraph.js primary.
-- `docs/STAFF_REVIEW_0.5.4.md`: latest verification + staff review verdict.
+- `docs/DOCKER_QUICKSTART.md`: one-command Docker stack (API + WhatsApp + scenario smoke).
+- `docs/CONSULT_KNOWLEDGE_DEMO.md`: two-layer consult KB (project + bank), intent routing, ASR roadmap.
+- `docs/DISTRIBUTION_CHANNELS.md`: one consult brain, many channel adapters (WhatsApp live; Telegram, Line, email, voice roadmap).
 
 ## Project Layout
 
 ```text
 apps/api        FastAPI backend for rules, evidence, and demo endpoint
 apps/web        Next.js demo UI
-data/synthetic Synthetic property, developer, policy, and settlement docs
-docs            Demo script, architecture, roadmap, value model
-infra           Qdrant Docker Compose
+data/synthetic  Synthetic property, developer, policy, and settlement docs
+data/consult_knowledge/realestate-demo/  Landmark Sukhumvit consult KB (RAG filter: consult_kb)
+docs            Demo script, architecture, roadmap, value model; HANDOFF.md for session continuity
+infra           Docker Compose (API, WhatsApp bridge, Qdrant)
 config          Source-controlled non-secret config
 ```
 
@@ -136,6 +163,9 @@ Scenario and RAG endpoints:
 curl http://localhost:8080/api/scenarios
 curl http://localhost:8080/api/scenarios/usdt-mixed-route/rag-run
 curl -X POST "http://localhost:8080/api/rag/ingest?dry_run=true"
+curl -X POST http://localhost:8080/api/consult/message \
+  -H 'Content-Type: application/json' \
+  -d '{"session_id":"demo","message":"а как покупать? у меня usdt","channel":"whatsapp"}'
 ```
 
 ## Run The Web Demo

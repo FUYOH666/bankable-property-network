@@ -1,5 +1,66 @@
 # Changelog
 
+## 0.5.13 - 2026-05-20
+
+- Full project audit: [`docs/PROJECT_AUDIT_REPORT.md`](docs/PROJECT_AUDIT_REPORT.md) — system map, LIVE vs ROADMAP, effectiveness re-score, P0/P1/P2 backlog.
+- Tier A doc sync to 0.5.13: AI_AUDIT_INDEX, VALIDATION_REPORT, FINAL_STATUS, PROJECT_DESCRIPTION, DOCS_AUDIT, runbooks, scorecard, NEXT_BUILD_PRIORITY; REPRODUCTION_GUIDE version section.
+- `developer_knowledge` channel_roadmap: WhatsApp and web → `live`.
+- Scenario/dialogue report scripts stamp API v0.5.13.
+
+## 0.5.12 - 2026-05-20
+
+- Fix SYSTEM_PROMPT leak in WhatsApp consult: rewritten prompt, `_is_prompt_leak` sanitizer, deterministic `_purchase_pitch_reply` for USDT/cash/mixed capital questions.
+- Synthetic RAG: `capital_routes_buyer_pitch.md`, `thailand_property_reference_links.md`; extended `Buyer_Settlement_Bridge.md` with Landmark → bank rails pitch.
+- Dialogue matrix +3 scripts (`usdt_buyer_ru`, `cash_buyer_ru`, `mixed_capital_en`); pytest for prompt-leak and purchase pitch fallback.
+- `WHATSAPP_CONSULT_DEMO.md` 4-turn jury arc including USDT product pitch turn.
+
+## 0.5.11 - 2026-05-20
+
+- Consult KB pivot: removed legacy Karon/TEST DEVELOPER 1 corpus; replaced with slim **Landmark Sukhumvit Tower** KB (Bangkok Landmark Group, 18.5–24.8M THB).
+- Aligned WhatsApp demo narrative with settlement/supplier contrast (Bangkok tier-1, not Phuket).
+- Updated `buyer_consultation.py` anchors, greetings, villa handler, scenario strip regex; dialogue matrix 14/14 (offline uses keyword mode for CI determinism).
+- Docs: `WHATSAPP_CONSULT_DEMO.md` 3-turn distribution script; `CONSULT_KNOWLEDGE_DEMO.md` without RealEstate-AI import.
+
+## 0.5.10 - 2026-05-20
+
+- Documentation sync: Tier A docs aligned to v0.5.10 (58+ pytest, 14/14 dialogue matrix, consult live LLM).
+- Multi-channel narrative: `docs/DISTRIBUTION_CHANNELS.md` — one `POST /api/consult/message`, WhatsApp live; Telegram, Line, email, voice roadmap.
+- Consult KB bridge: `Buyer_Settlement_Bridge.md`, `FAQ_TH.md`; policy `consult_channel_policy.md`; extended dialogue matrix (`mixed_project_settlement`, `follow_up_context`).
+- Intent fix: strip `TEST DEVELOPER` before scenario keyword detection; FET template snippet for Russian/English FAQ turns.
+- Cross-links: PITCH, RUNBOOK, ARCHITECTURE, BUYER_CONSULTATION_AGENT, DEMO_CHECKLIST, SYNTHETIC_CORPUS.
+
+## 0.5.9 - 2026-05-20
+
+- Consult dialogue simulation: `scripts/run_consult_dialogue_matrix.py` + `data/consult_dialogues/dialogue_matrix.yaml` (offline + live API modes).
+- Agent tuning: expanded project intent (villa/buy/where), consult_kb-only RAG filter, session-aware retrieval, structured LLM context, WhatsApp reply sanitization.
+- Qwen 3.6 in LM Studio: `LOCAL_AI_LLM_ENABLE_THINKING=false` (default) + `chat_template_kwargs` for direct `content` replies.
+- Demo anchor: TEST DEVELOPER 1 / Karon Phuket enforced in prompts; villa requests get honest condo inventory answer.
+- Report: `docs/CONSULT_DIALOGUE_SIMULATION_REPORT.md`; tests in `test_consult_dialogue_matrix.py`.
+
+## 0.5.8 - 2026-05-20
+
+- Full local AI contour for buyer consult: Qdrant + BGE embed/rerank + LM Studio wired in Docker via `host.docker.internal`.
+- RAG ingest includes `data/consult_knowledge/realestate-demo/` alongside synthetic corpus; `consult_retrieval.py` with `CONSULT_RETRIEVAL_MODE` (`auto` | `keyword` | `rag`).
+- Buyer consultation uses RAG pipeline with explicit keyword fallback; citations include `retrieval_mode` and `rerank_score`.
+- API: `GET /api/consult/contour/healthz`; `scripts/start-full-ai-contour.sh`; docker-smoke checks contour + LLM configured.
+- Docs: updated `LOCAL_AI_CONTOUR.md`, `CONSULT_KNOWLEDGE_DEMO.md`, `HACKATHON_RUNBOOK.md`, `AI_AUDIT_INDEX.md`, `DOCKER_QUICKSTART.md`.
+
+## 0.5.7 - 2026-05-20
+
+- WhatsApp bridge: message ID dedup (fixes duplicate replies); `/pair` auto-refresh QR page.
+- Consult knowledge: import RealEstate-AI `knowledge_base` → `data/consult_knowledge/realestate-demo/`; `consult_knowledge.py` keyword chunk search (no Qdrant).
+- Buyer consultation: intent routing (greeting / project_faq / settlement / mixed), multilingual greetings, conditional bank tools.
+- API: `GET /api/consult/knowledge/healthz`; consult response includes `intent`.
+- Docs: `docs/CONSULT_KNOWLEDGE_DEMO.md`; ASR voice roadmap; `scripts/import_realestate_knowledge.sh`.
+
+## 0.5.6 - 2026-05-20
+
+- Added batch scenario simulation: `scripts/run_scenario_matrix.py` → `docs/SCENARIO_SIMULATION_REPORT.md` (all 8 scenarios, judge-ready grouping).
+- Buyer Consultation API: `POST /api/consult/message`, `GET /api/consult/healthz`; `buyer_consultation.py` with internal tools, LM Studio instruct path, explicit template fallback.
+- WhatsApp bridge MVP: `services/whatsapp-bridge/` (Go + whatsmeow), QR pairing on `:8020`, wired to consult API; `infra/docker-compose.yml` services `bankable-api` + `whatsapp-bridge`.
+- UI: `buyer-consultation-panel.tsx` web fallback chat.
+- Docs: `docs/WHATSAPP_CONSULT_DEMO.md`; runbook/checklist WhatsApp steps; `AI_AUDIT_INDEX` buyer consult partial live.
+
 ## 0.5.5 - 2026-05-20
 
 - Added Developer Supply Demo: Shadow Bay prelaunch (off-platform) vs Bangkok Landmark Group (fictional tier-1 on-network).
@@ -11,6 +72,7 @@
 - Added `docs/PROJECT_DESCRIPTION.md` for hackathon registration; synced doc drift (8 scenarios, v0.5.5) across AGENTS, FINAL_STATUS, REPRODUCTION_GUIDE, VALIDATION_REPORT, DOCS_AUDIT, PUBLISH.
 - Added `docs/AI_AUDIT_INDEX.md` for automated/hackathon project review; aligned DEMO_SCRIPT, DEMO_REHEARSAL_REPORT, SYNTHETIC_DATA_GUIDE, JOURNEY_DEVELOPER_AGENT, ARCHITECTURE.
 - Published public repository: https://github.com/FUYOH666/bankable-property-network (Apache-2.0).
+- Hackathon demo vitrine: https://scanovich.ai/seablockchainweek/ (static showcase; removable post-event).
 
 ## 0.5.4 - 2026-05-20
 

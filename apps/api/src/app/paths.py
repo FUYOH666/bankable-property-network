@@ -8,3 +8,8 @@ def repo_root() -> Path:
 def synthetic_root(data_root: Path | None = None) -> Path:
     root = data_root if data_root is not None else repo_root()
     return root / "data" / "synthetic"
+
+
+def consult_knowledge_root(data_root: Path | None = None) -> Path:
+    root = data_root if data_root is not None else repo_root()
+    return root / "data" / "consult_knowledge" / "realestate-demo"

@@ -30,6 +30,8 @@ curl http://localhost:8080/api/demo/evidence-pack
 curl http://localhost:8080/api/demo/post-closing-yield-plan
 curl http://localhost:8080/api/scenarios
 curl http://localhost:8080/api/rag/health
+curl http://localhost:8080/api/consult/healthz
+curl -X POST http://localhost:8080/api/consult/message -H 'Content-Type: application/json' -d '{"session_id":"smoke","message":"payee mismatch","channel":"web"}'
 curl http://localhost:8080/api/scenarios/swift-clean-route/run
 curl http://localhost:8080/api/scenarios/usdt-mixed-route/run
 curl http://localhost:8080/api/scenarios/cash-red-route/run
@@ -42,7 +44,7 @@ curl http://localhost:8080/api/scenarios/tier-one-landmark-route/run
 
 ## Real RAG Demo
 
-**Local AI contour (30 sec for judges):** Today we run a controlled local stack — Docker Qdrant, BGE embedding/reranker on MacBook, LM Studio for explainability prototypes. Money decisions stay on deterministic rules. At bank scale: **vLLM** + **Qwen-class embeddings**, not desktop inference. Full runbook: [`LOCAL_AI_CONTOUR.md`](LOCAL_AI_CONTOUR.md) · tiers: [`AI_SERVICE_TIERS.md`](AI_SERVICE_TIERS.md).
+**Local AI contour (2 min for judges):** Start full stack with `./scripts/start-full-ai-contour.sh` — Docker Qdrant, BGE embedding/reranker on MacBook, LM Studio for buyer consult. WhatsApp → consult agent: project FAQ via Qdrant + BGE + reranker; money questions via bank API + policy RAG. LM Studio explains in buyer language — never approves deposits. Explicit fallback when any service is down. Verify: `curl http://localhost:8080/api/consult/contour/healthz`. Full runbook: [`LOCAL_AI_CONTOUR.md`](LOCAL_AI_CONTOUR.md) · consult KB: [`CONSULT_KNOWLEDGE_DEMO.md`](CONSULT_KNOWLEDGE_DEMO.md) · tiers: [`AI_SERVICE_TIERS.md`](AI_SERVICE_TIERS.md).
 
 Start Qdrant:
 
@@ -216,6 +218,49 @@ Answer:
 > AI does not decide whether money moves. The demo uses deterministic rules plus a controlled RAG pipeline — Qdrant, embeddings, reranking, schema-validated LLM explainability — so regulated structures can review evidence faster at scale. When services are unavailable, explicit fallback mode applies. Decisions remain evidence-backed, traceable, and human-in-loop. The product direction is a **nonlinear decision graph** (Settlement Branch Explorer) plus a separate **Buyer Consultation Agent** — not a linear property chatbot.
 
 Optional future demo: live buyer-agent chat against LM Studio in local contour (not required for hackathon MVP).
+
+**Full AI contour (live now):** `./scripts/start-full-ai-contour.sh` — consult calls LM Studio + RAG when services are up; check `retrieval_mode: llm_instruct` or `rag_llm` in `/api/consult/message` response.
+
+## Demo Story Arc (3 min + WhatsApp)
+
+| Step | UI / channel | API / action | Judge line |
+|------|--------------|--------------|------------|
+| 1 | Pitch Screen | — | Commission market has no verification layer |
+| 2 | Supplier Contrast | `GET /api/demo/supplier-contrast` | Off-platform prelaunch vs tier-1 feed |
+| 3 | Developer Knowledge Hub | `GET /api/demo/developer-knowledge-hub` | Payee mismatch — upstream SSOT |
+| 4 | Settlement Flow | `GET /api/demo/closing-passport` | Bank decides route before funds move |
+| 5 | Scenario Simulator | `GET /api/scenarios/{id}/rag-run` | Eight capital paths, explicit RAG/fallback |
+| 6 | WhatsApp (optional) | consult bridge → `POST /api/consult/message` | **4-turn arc:** greeting → price/villa → **USDT «как покупать?»** → payee guardrail |
+| 7 | Close | — | WhatsApp today; Line/TG/email/voice tomorrow — one API |
+
+Channels: [`DISTRIBUTION_CHANNELS.md`](DISTRIBUTION_CHANNELS.md) · dialogue evidence: [`CONSULT_DIALOGUE_SIMULATION_REPORT.md`](CONSULT_DIALOGUE_SIMULATION_REPORT.md).
+
+## WhatsApp Consultation (60 sec)
+
+**4-turn jury arc** — full script: [`WHATSAPP_CONSULT_DEMO.md`](WHATSAPP_CONSULT_DEMO.md).
+
+| Turn | Message | Pitch |
+|------|---------|-------|
+| 1 | «привет» | Distribution — channel, not payment authority |
+| 2 | price / villa | Landmark Bangkok condos |
+| 3 | **«а как покупать? у меня usdt»** | Amber capital → bank rails, not agent wallet |
+| 4 | wire to agent? | Payee guardrail — do not deposit |
+
+30-second line: USDT is not a shortcut around the bank — it is amber capital needing conversion evidence, verified payee, FET, and Land Department registration on bankable rails.
+
+Message the consultant on WhatsApp — same synthetic API as the web fallback panel:
+
+```bash
+docker compose -f infra/docker-compose.yml up -d bankable-api whatsapp-bridge
+open http://localhost:8020/qr   # scan once before booth
+curl http://localhost:8020/status
+```
+
+Script line:
+
+> The buyer layer cites developer feeds and scenario facts from our API. It never approves a deposit — banks stay on bankable rails. If WhatsApp is flaky, use the web consultation panel.
+
+Full setup: [`WHATSAPP_CONSULT_DEMO.md`](WHATSAPP_CONSULT_DEMO.md) · scenario batch report: [`SCENARIO_SIMULATION_REPORT.md`](SCENARIO_SIMULATION_REPORT.md).
 
 ## If Asked About Legal/KYC
 
