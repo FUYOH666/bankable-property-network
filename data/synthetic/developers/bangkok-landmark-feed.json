@@ -13,6 +13,9 @@
   "authorized_payees": [
     "Bangkok Landmark Group Public Co., Ltd."
   ],
+  "authorized_payee_wallets": [
+    "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+  ],
   "units_available": [
     {
       "unit_type": "2BR",

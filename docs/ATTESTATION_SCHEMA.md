@@ -103,8 +103,8 @@ Schema registration is a one-time on-chain action. It requires:
 
    Also update:
 
-   - `docs/v1/README_DRAFT.md` → table "What's on-chain"
-   - `docs/v1/ATTESTATION_SCHEMA.md` → this file, section 3 below
+   - `README.md` → "What's on-chain" table
+   - `docs/ATTESTATION_SCHEMA.md` § 3 below
 
 ## 3. Live registration data
 

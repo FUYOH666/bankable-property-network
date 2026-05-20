@@ -1,5 +1,102 @@
 # Changelog
 
+## v1.0.0-alpha.1 — 2026-05-20 (branch `v1/attestation-layer`)
+
+**Week 1 complete: surgery, rebrand, slim docs.** Foundation ready for the
+Week 2 web3 core build (Foundry contracts + attester service + single-screen
+UI). 64 → 34 tests, all green; 53 → 8 docs; one consolidated brand
+(AttestRWA).
+
+### Week 1.1 — Archive surgery (commit `e799c43`)
+
+Moved 35 legacy files into `archive/v0.5/` via `git mv` (history preserved).
+Cleaned `main.py`, `rag.py`, `paths.py`, `schemas/demo.py`, `test_api.py`,
+`test_rag.py` of dangling consult / yield / guided-simulation references.
+Replaced `apps/web/src/app/page.tsx` with a v1 hero stub showing the
+dev-fork on-chain artefact table and the pivot story.
+
+Archived in this step:
+
+- 5 backend consult services + 1 yield service + 1 consult schema
+- 4 consult tests (consultation, retrieval, dialogue_matrix, knowledge)
+- 8 React panels (buyer-consultation, closing-passport, developer-knowledge,
+  guided-deal, pitch-screen, post-closing-yield, scenario-simulator,
+  supplier-contrast)
+- 7 consult-KB markdown files + dialogue matrix YAML
+- whatsapp-bridge Go service (5 files)
+- 4 consult / WhatsApp / AI-contour scripts
+
+`pytest`: 34 passed (was 64; 30 archived with their features).
+
+### Week 1.2 — Rebrand to AttestRWA
+
+- `apps/api/pyproject.toml`: name `bankable-property-os-api` →
+  `attestrwa-api`; version → `1.0.0-alpha.1`.
+- `apps/web/package.json`: same shape.
+- `apps/api/src/app/main.py`: FastAPI `title` → `AttestRWA API`;
+  `description` rewritten around attestation primitive; `/healthz`
+  service tag → `attestrwa-api`.
+- `README.md`: replaced with the v1 hero (formerly `docs/v1/README_DRAFT.md`).
+  Old README moved to `archive/v0.5/README.v0.5.md`.
+- `AGENTS.md`: rewritten compact AttestRWA-first; old AGENTS to
+  `archive/v0.5/AGENTS.v0.5.md`.
+
+Environment variable names (`BANKABLE_*`) intentionally kept for backward
+compatibility — they are not jury-visible and renaming risks deploy config
+drift. The visible brand is unified.
+
+### Week 1.3 — Slim docs (53 → 8)
+
+`docs/` now contains exactly 8 files:
+
+1. `PRODUCT_THESIS.md` — problem, solution, primary customers, non-goals
+2. `ARCHITECTURE.md` — layers, data flow, design decisions, mermaid diagrams
+3. `ATTESTATION_SCHEMA.md` — EAS `SettlementApproval` 10-field schema
+4. `API_CONTRACT.md` — REST endpoints (current + Week 2 planned)
+5. `DEMO_SCRIPT.md` — 90 s and 3 min pitches, backup video script, Q&A bridges
+6. `DEV_SIMULATION.md` — Anvil fork runbook
+7. `ROADMAP.md` — Week 0 to 2027 plan, explicit non-goals
+8. `SECURITY.md` — 12 threat scenarios + mitigations (Week 3 expands with
+   slither / Foundry fuzz results)
+
+54 legacy docs archived to `archive/v0.5/docs/` (53 from v0.5 + 1
+Week 0 bootstrap doc that became historical).
+
+Dead `docs/v1/...` link references cleaned across `README.md`, `AGENTS.md`,
+`docs/ATTESTATION_SCHEMA.md`.
+
+### Week 1.4 — Synthetic data extension
+
+- Created `data/synthetic/rwa/wallets.json` — canonical map of Anvil
+  default accounts to AttestRWA demo roles (attester, buyer, two
+  developer treasuries, one wrong-payee, one mixer-tainted buyer).
+- Extended `data/synthetic/developers/siam-riverside-feed.json` with
+  `authorized_payee_wallets` (Anvil acc 2) and `known_impostor_payees`
+  (Anvil acc 3 wearing `SRL Holding 2026` label, captured from anchor
+  case agent payment instruction).
+- Extended `data/synthetic/developers/bangkok-landmark-feed.json` with
+  `authorized_payee_wallets` (Anvil acc 6).
+- Extended `data/synthetic/developers/shadow-bay-feed.json` with
+  `authorized_payee_wallets: []` and `marketing_payee_wallet_claimed`
+  (Anvil acc 7) to make the off-platform reject path explicit.
+- Created `data/synthetic/rwa/scenarios.json` with three end-to-end RWA
+  flow scenarios:
+  - `happy-bangkok-condo` — clean Dubai buyer, verified Bangkok Landmark
+    payee, capital green → expect `SettlementReleased`.
+  - `payee-mismatch-srl` — same Dubai buyer, instruction points to the
+    `SRL Holding 2026` impostor wallet → expect `payeeVerified=false`
+    attestation and `SettlementRefunded`.
+  - `capital-red-mixer-touch` — fresh wallet with Tornado-Cash two-hop
+    exposure (synthetic mock), valid payee instruction → expect
+    `capitalClass=2 (red)` attestation and `SettlementRefunded`.
+
+### Verified Week 1 closeout
+
+- `uv run pytest -q` → 34 passed.
+- All 5 modified / new JSON files validate with `json.load`.
+- Dev chain (`./scripts/dev-chain.sh`) still up; EAS schema UID still
+  resolves on the fork via `getSchema` readback.
+
 ## v1.0.0-pivot.w0.sim — 2026-05-20 (branch `v1/attestation-layer`)
 
 **Full local simulation unlocks autonomous Week 1.** No faucet, no manual

@@ -10,7 +10,9 @@
   "sales_status": "prelaunch_active",
   "construction_permit_issued": false,
   "authorized_payees": [],
+  "authorized_payee_wallets": [],
   "marketing_payee_claimed": "Shadow Bay Holdings (BVI) Ltd.",
+  "marketing_payee_wallet_claimed": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
   "units_available": [
     {
       "unit_type": "2BR prelaunch",

@@ -1,6 +1,6 @@
 {
-  "name": "bankable-property-os-web",
-  "version": "0.1.0",
+  "name": "attestrwa-web",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "scripts": {
     "dev": "next dev",

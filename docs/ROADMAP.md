@@ -1,64 +1,94 @@
-# Roadmap
+# Roadmap — AttestRWA
 
-## 24-Hour Demo
+## Hackathon pivot (now)
 
-- One anchor case illustrating infrastructure failure: unverified settlement path, Dubai bank + USDT capital, Thai condo deposit, commission-model context.
-- Developer Knowledge Hub (developer ERP feed vs agent payee mismatch).
-- Property Shield report.
-- Capital Bankability Map.
-- Settlement Route Comparison.
-- Bank Counter-Offer with FET-ready escrow path.
-- Human approval step.
-- Evidence pack hash.
-- Closing Passport output.
-- Guided Deal Simulation.
-- Evidence Pack JSON export.
-- Documentation pack for demo, roadmap, synthetic data, architecture, stakeholder value, and network positioning.
+`v1/attestation-layer` branch from `main@v0.5.13`. Three-week sprint.
 
-## 2-Week Pilot
+| Week | Goal | Status |
+|------|------|--------|
+| **Week 0** | Branch, archive scaffold, EAS schema registered on dev fork, draft README with pivot story, Foundry installed, scripts/dev-chain.sh idempotent | **Done** |
+| **Week 1** | Archive legacy modules to `archive/v0.5/`, rebrand to AttestRWA, slim docs from 53 to 8, extend synthetic data with wallet addresses + 3 RWA scenarios, pytest baseline stays green | **In progress** |
+| **Week 2** | `SettlementEscrow.sol` + `MockUSDC.sol` with Foundry fuzz tests and slither audit. Attester service (`POST /attest/settlement`, EAS client, wallet taint, compliance DSL). Single-screen wallet UI on Next.js | Pending |
+| **Week 3** | Farcaster Frame `/api/frame/attest`. Dune Analytics public dashboard. Real Base Sepolia deploy (one optional 60s faucet step). 60s backup video. Tag `v1.0.0` | Pending |
 
-- **Buyer Consultation Agent** scaffold: `apps/buyer-agent/` with LangGraph.js, LM Studio local LLM, policy-controlled tools calling FastAPI. See [`BUYER_CONSULTATION_AGENT.md`](BUYER_CONSULTATION_AGENT.md).
-- Developer feed ingestion stub: synthetic ERP snapshot, authorized payees, inventory and installment terms.
-- Verified developer and agent profile stubs.
-- Richer synthetic document generator for property, agent, developer, and payment instruction scenarios.
-- Qdrant collections for policies, developers, risk cases, and settlement rules.
-- RAG trace stub showing which synthetic documents informed the decision.
-- Configurable policy rules.
-- Buyer, banker, and compliance role-based views.
-- PDF export for evidence pack.
-- Testnet attestation transaction.
+Deliverables at end of Week 3:
 
-## 6-Week Bank Pilot
+- Public BaseScan link to deployed `SettlementEscrow.sol` (verified).
+- Public EAS Scan link to `SettlementApproval` schema and at least 3
+  on-chain attestations (one happy, one reject, one expired).
+- Public Dune dashboard URL.
+- Public Farcaster Frame URL.
+- 90-second live demo on Vercel + 60-second backup video.
+- `archive/v0.5/` clean handoff to prove the pivot was deliberate.
 
-- **Settlement Branch Explorer** — LangGraph decision graph with parallel route branches, scoring, and human gates. See [`NONLINEAR_DECISION_GRAPH.md`](NONLINEAR_DECISION_GRAPH.md).
-- Integration with bank document intake.
-- FET-ready settlement checklist.
-- Escrow workflow and conditional release controls.
-- Compliance workflow permissions.
-- Bank officer dashboard.
-- Internal audit dashboard.
-- Legal review of escrow wording.
-- Sandbox integration with wallet analytics or payment rails.
-- Pilot metrics dashboard.
+## Q3 2026 — First exchange integration
 
-## Network Phase
+After hackathon submit and feedback. Target one of:
 
-- Verified Developer Knowledge Layer: developer ERP SSOT feed + multi-channel agent distribution (WhatsApp, Telegram, email, voice/TTS) over RAG — prior art from realestate-agent-platform.
-- Multi-bank anchors across Thai, Dubai, Singapore, and international settlement participants.
-- Verified Property Layer.
-- Verified Developer Layer.
-- Verified Agent Layer.
-- Buyer Capital Layer.
-- Settlement Routing Layer.
-- Escrow and Conditional Release.
-- Closing Passport attestation registry.
-- Post-Purchase Financial Layer: rental income accounts, insurance, maintenance payments, tax reminders, resale support, and wealth management.
+- Binance Settlement / RWA pilot — AttestRWA attestations gate RWA
+  product listing releases.
+- OKX RWA — same shape.
+- Bybit RWA — same shape.
 
-## Production Direction
+Engineering work: production attester service hosted on the partner's
+controlled environment; multi-attester support (more than just our test
+key); on-chain attester registry contract.
 
-- Real KYC/KYB providers.
-- Land or title registry integrations where available.
-- Bank-grade identity and access management.
-- Model monitoring and approval governance.
-- Production attestation registry.
-- Privacy-preserving audit proofs.
+## Q4 2026 — First bank attester pilot
+
+Target a regulated bank in ASEAN (likely Thailand or Singapore — both have
+explicit RWA / "permissioned DeFi" sandbox programs in 2026). The bank
+becomes the **attester** for cross-border property settlements; AttestRWA
+provides the off-chain compliance engine + on-chain primitives.
+
+Engineering work:
+
+- Production-grade attester key management (HSM).
+- Live integration with the bank's existing KYC + AML platform (Sumsub,
+  Persona, internal Quantexa).
+- Production wallet taint via Chainalysis / TRM API.
+- Audit + penetration test before pilot.
+
+Commercial work: fee-per-attestation pricing model, attester onboarding
+agreement, on-chain attester registry update.
+
+## 2027 — Multi-jurisdiction, mainnet
+
+Expand from one bank in one country to a multi-jurisdiction attester
+registry. Move from Base Sepolia → Base mainnet (and potentially Optimism
+mainnet for redundancy / different attester operators).
+
+Engineering work:
+
+- Mainnet deploy with full audit (Trail of Bits / OpenZeppelin scope).
+- Compliance DSL marketplace — banks publish their rule packs as YAML
+  files, RWA platforms pick the rule pack that matches their target
+  jurisdiction.
+- Multi-token support (USDC, USDT, EURC, JPYC).
+- L2 cross-chain message relays (LayerZero / Hyperlane) so an attestation
+  signed on Base can be verified on Optimism without re-signing.
+
+## What we are explicitly _not_ planning
+
+- Own L1 / L2.
+- Own stablecoin.
+- Own tokenization product.
+- Own KYC provider.
+- Mainnet deploy before a regulated bank signs the first attester
+  agreement.
+- Aggressive marketing or token launch — AttestRWA is infrastructure, not
+  a community-yield play.
+
+## Open research questions
+
+These are deferred to Q4 2026 / 2027:
+
+- Attester slashing / staking — should attesters post a bond against
+  fraudulent signatures? EAS does not natively support; would need a
+  separate slashing contract.
+- Privacy-preserving attestations — ZK-proof of compliance without
+  revealing the evidence pack contents. Currently `evidenceHash` is
+  enough; ZK-proof is overkill for v1 but interesting long-term.
+- Cross-attester portability — can a buyer take an attestation from bank
+  A and use it at bank B's escrow? Probably not by default
+  (attester whitelisting per-escrow), but composable on opt-in.

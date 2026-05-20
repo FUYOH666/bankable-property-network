@@ -45,13 +45,18 @@ def _data_unavailable_http() -> HTTPException:
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(settings.bankable_log_level)
-    logger.info("Bankable Property OS API starting version=%s", settings.bankable_api_version)
+    logger.info("AttestRWA API starting version=%s", settings.bankable_api_version)
     yield
 
 
 app = FastAPI(
-    title="Bankable Property OS API",
-    description="Closing Passport demo API for bankable Thai property settlement.",
+    title="AttestRWA API",
+    description=(
+        "AttestRWA — Settlement Attestation Layer for RWA. Off-chain attester service that "
+        "applies bank-grade verification rules (Property Shield, capital classification, "
+        "RAG-assisted evidence) and signs on-chain EAS attestations consumed by the "
+        "programmable settlement escrow on Base Sepolia."
+    ),
     version=get_settings().bankable_api_version,
     lifespan=lifespan,
 )
@@ -66,7 +71,7 @@ app.add_middleware(
 
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
-    return {"status": "ok", "service": "bankable-property-os-api"}
+    return {"status": "ok", "service": "attestrwa-api"}
 
 
 @app.get("/api/demo/closing-passport", response_model=ClosingPassportResponse)

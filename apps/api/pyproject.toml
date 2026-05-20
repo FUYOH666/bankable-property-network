@@ -1,7 +1,7 @@
 [project]
-name = "bankable-property-os-api"
-version = "0.1.0"
-description = "Bankable Property OS API for the Closing Passport hackathon demo."
+name = "attestrwa-api"
+version = "1.0.0-alpha.1"
+description = "AttestRWA — Settlement Attestation Layer API. Off-chain attester service that signs on-chain EAS attestations for RWA stablecoin settlements."
 requires-python = ">=3.12"
 dependencies = [
     "fastapi",
