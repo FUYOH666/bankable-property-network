@@ -10,6 +10,9 @@ dependencies = [
     "pydantic-settings",
     "pyyaml",
     "uvicorn",
+    "web3>=7.6",
+    "eth-account>=0.13",
+    "eth-abi>=5.1",
 ]
 
 [dependency-groups]

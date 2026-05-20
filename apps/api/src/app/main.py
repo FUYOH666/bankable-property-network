@@ -8,14 +8,28 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.demo_case import ANCHOR_CASE
 from app.logging_config import configure_logging
+from app.schemas.attester import (
+    AttestRequest,
+    AttestResponse,
+    AttestationLookupResponse,
+    AttesterHealthResponse,
+)
 from app.schemas.demo import (
     ClosingPassportResponse,
     DeveloperKnowledgeHubResponse,
     SupplierContrastResponse,
 )
+from app.services.attester_service import (
+    AttesterError,
+    DealRequest,
+    attest_for_deal,
+    attester_health,
+    decide_for_deal,
+)
 from app.services.closing_passport_demo import build_closing_passport_demo
 from app.services.data_loader import DataLoadError
 from app.services.developer_knowledge import build_developer_knowledge_hub
+from app.services.eas_client import EASClient
 from app.services.rag import ingest_synthetic_documents, rag_health, run_scenario_with_rag
 from app.services.scenarios import get_scenario_detail, list_scenarios, run_scenario
 from app.services.supplier_contrast_demo import build_supplier_contrast_demo
@@ -179,3 +193,113 @@ def get_rag_health() -> dict[str, object]:
 @app.post("/api/rag/ingest")
 def post_rag_ingest(dry_run: bool = False) -> dict[str, object]:
     return ingest_synthetic_documents(dry_run=dry_run)
+
+
+# ---- Attester endpoints -----------------------------------------------------
+
+
+def _explorer_url(chain_id: int | None, uid: str) -> str | None:
+    if chain_id == 84532:
+        return f"https://base-sepolia.easscan.org/attestation/view/{uid}"
+    if chain_id == 8453:
+        return f"https://base.easscan.org/attestation/view/{uid}"
+    return None
+
+
+@app.post("/attest/settlement", response_model=AttestResponse)
+def post_attest_settlement(body: AttestRequest) -> dict[str, object]:
+    """Decide on a settlement and (optionally) submit an EAS attestation."""
+    logger.info(
+        "Attestation request deal=%s buyer=%s amount=%s developer=%s",
+        body.deal_id,
+        body.buyer_wallet,
+        body.amount_base_units,
+        body.developer_id,
+    )
+    request = DealRequest(
+        deal_id=bytes.fromhex(body.deal_id[2:]),
+        buyer_wallet=body.buyer_wallet,
+        payee_wallet=body.payee_wallet,
+        token_address=body.token_address,
+        amount_base_units=body.amount_base_units,
+        developer_id=body.developer_id,
+        jurisdiction=body.jurisdiction,
+        buyer_kyc_tier=body.buyer_kyc_tier,
+        expires_in_seconds=body.expires_in_seconds,
+    )
+    try:
+        decision = decide_for_deal(request)
+    except AttesterError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    chain_id: int | None = None
+    attestation_uid: str | None = None
+    tx_hash: str | None = None
+    block_number: int | None = None
+    gas_used: int | None = None
+
+    submit_on_chain = (
+        get_settings().attestrwa_submit_on_chain
+        if hasattr(get_settings(), "attestrwa_submit_on_chain")
+        else True
+    )
+
+    if submit_on_chain:
+        try:
+            client = EASClient()
+            chain_id = client.config.chain_id
+            result = attest_for_deal(request, decision, client=client)
+            attestation_uid = result.uid
+            tx_hash = result.tx_hash
+            block_number = result.block_number
+            gas_used = result.gas_used
+        except Exception as exc:
+            logger.warning("on-chain attest failed: %s — returning decision only", exc)
+
+    explanation = (
+        f"Decision {decision.decision} — payee_verified={decision.payee_verified} "
+        f"capital_class={decision.capital_class}"
+    )
+    if decision.reasons:
+        explanation += " :: " + "; ".join(decision.reasons)
+
+    return {
+        "decision": decision.decision,
+        "deal_id": body.deal_id,
+        "capital_class": decision.capital_class,
+        "payee_verified": decision.payee_verified,
+        "reasons": decision.reasons,
+        "rule_results": decision.rule_results,
+        "taint": {
+            "wallet": decision.taint.wallet,
+            "capital_class": decision.taint.capital_class,
+            "signals": decision.taint.signals,
+            "explanation": decision.taint.explanation,
+        }
+        if decision.taint is not None
+        else None,
+        "evidence_hash": "0x" + decision.evidence_hash.hex(),
+        "expires_at": decision.expires_at,
+        "attestation_uid": attestation_uid,
+        "tx_hash": tx_hash,
+        "block_number": block_number,
+        "gas_used": gas_used,
+        "chain_id": chain_id,
+        "eas_explorer_url": _explorer_url(chain_id, attestation_uid) if attestation_uid else None,
+        "explanation": explanation,
+    }
+
+
+@app.get("/attest/healthz", response_model=AttesterHealthResponse)
+def get_attest_healthz() -> dict[str, object]:
+    return attester_health()
+
+
+@app.get("/attest/{deal_id}", response_model=AttestationLookupResponse)
+def get_attestation_for_deal(deal_id: str) -> dict[str, object]:
+    """Placeholder attestation lookup — Week 2.3 wires it to an indexer."""
+    return {
+        "deal_id": deal_id,
+        "attestation": None,
+        "note": "Per-deal attestation lookup is wired via the EAS indexer in Week 3.",
+    }

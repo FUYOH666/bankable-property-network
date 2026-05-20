@@ -1,5 +1,61 @@
 # Changelog
 
+## v1.0.0-alpha.2.w2.2 — 2026-05-20 (branch `v1/attestation-layer`)
+
+**Week 2.2 — attester service shipped.** Off-chain compliance engine plus
+EAS client now expose the full attestation path. Pytest 34 → 57 (23 new
+tests across taint, DSL, attester service, and HTTP).
+
+### Added
+- Backend dependencies: `web3>=7.6`, `eth-account>=0.13`, `eth-abi>=5.1`
+  (pulled into `uv.lock`).
+- `data/synthetic/policies/default_attestrwa_policy.yaml` — baseline
+  compliance policy as YAML DSL (4 rules: payee-must-match-developer-feed,
+  capital-not-red, kyc-tier-by-amount, only-supported-jurisdictions).
+- `apps/api/src/app/services/wallet_taint.py` — deterministic Chainalysis-
+  style classifier (green / amber / red) keyed off
+  `data/synthetic/rwa/wallets.json`. Pure function, no I/O.
+- `apps/api/src/app/services/compliance_dsl.py` — tiny YAML rule DSL with
+  AST-validated boolean expressions (AND/OR/NOT, comparisons, literals,
+  identifiers; no function calls, no attribute access, no walrus).
+  YAML-style aliases `true` / `false` / `null` for ergonomic policy
+  authoring. Short-circuit evaluation: first failed rule stops the chain.
+- `apps/api/src/app/services/eas_client.py` — thin web3.py wrapper over
+  the EAS contract at the canonical Base address `0x4200…0021`. Provides
+  `attest`, `get_attestation`, `health`, plus an ABI-encoder helper for
+  the 10-field `SettlementApproval` payload.
+- `apps/api/src/app/services/attester_service.py` — orchestrator: loads
+  the developer feed, runs `wallet_taint` + DSL evaluation, builds a
+  deterministic evidence hash, and (when EAS is reachable) signs and
+  submits the on-chain `SettlementApproval` attestation.
+- `apps/api/src/app/schemas/attester.py` — Pydantic v2 schemas:
+  `AttestRequest`, `AttestResponse`, `AttesterHealthResponse`,
+  `AttestationLookupResponse` with hex / length validators.
+- Three new FastAPI endpoints:
+  - `POST /attest/settlement` — decision + on-chain attestation
+  - `GET /attest/healthz` — RPC + attester balance
+  - `GET /attest/{dealId}` — placeholder lookup (Week 3 wires the EAS indexer)
+- Tests (23 new): `test_wallet_taint.py` (4), `test_compliance_dsl.py`
+  (7), `test_attester_service.py` (6), `test_attester_api.py` (6).
+
+### Updated
+- `apps/api/pyproject.toml` — dependencies block expanded for web3 stack.
+- `apps/api/src/app/main.py` — imports + 3 attester endpoints; on-chain
+  attestation submission is best-effort (warning + decision-only response
+  when EAS RPC is unreachable, so the API stays usable without the dev
+  chain).
+
+### Verified
+- `uv run pytest -q` → **57 passed in 0.74s** (was 34 in alpha.1).
+
+### Next (Week 2.3)
+- Single-screen UI (`apps/web/src/app/rwa-settlement-live.tsx`):
+  wagmi + viem + RainbowKit wallet connect, escrow event watcher,
+  attester poll, cinematic transitions.
+- `scripts/e2e_rwa_flow.sh`: buyer → escrow.deposit → attester →
+  EAS.attest → escrow.release end-to-end smoke against the dev fork.
+- Tag `v1.0.0-alpha.2`.
+
 ## v1.0.0-alpha.2.w2.1 — 2026-05-20 (branch `v1/attestation-layer`)
 
 **Week 2.1 — Foundry contracts shipped and deployed to dev fork.** Pivot
