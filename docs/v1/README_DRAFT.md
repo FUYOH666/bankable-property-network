@@ -36,16 +36,32 @@
 5. **Story close** (15 s): "One attestation schema. Any RWA. Any bank.
    Stablecoins meet compliance — without trusting either side."
 
-## What's on-chain (Base Sepolia)
+## What's on-chain
+
+### Dev simulation (Anvil fork of Base Sepolia — port 8545, chain 84532)
+
+Spin up the full stack in one command: `./scripts/dev-chain.sh`. See
+[`docs/v1/DEV_SIMULATION.md`](v1/DEV_SIMULATION.md).
 
 | Artefact | Address / UID |
 |----------|---------------|
-| `SettlementApproval` EAS Schema UID | `0x...` _(to be registered Week 0)_ |
-| `SettlementEscrow.sol` | `0x...` _(deploy Week 2)_ |
-| `MockUSDC.sol` | `0x...` _(deploy Week 2)_ |
-| Attester EOA (open address) | `0x...` _(generate Week 0)_ |
-| Dune dashboard | _to be created Week 3_ |
-| Farcaster Frame | `/api/frame/attest` _(Week 3)_ |
+| `SettlementApproval` EAS Schema UID | `0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96` |
+| EAS contract (canonical) | `0x4200000000000000000000000000000000000021` |
+| SchemaRegistry (canonical) | `0x4200000000000000000000000000000000000020` |
+| Attester EOA (dev) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Anvil acc 0) |
+| `SettlementEscrow.sol` | _(deploy Week 2)_ |
+| `MockUSDC.sol` | _(deploy Week 2)_ |
+
+### Real Base Sepolia (Week 3 — public for hackathon submission)
+
+| Artefact | Status |
+|----------|--------|
+| Schema UID | Same as dev (deterministic) — to be registered Week 3 |
+| Attester EOA (real, public address) | _(generate Week 3)_ |
+| BaseScan deploy link | _(Week 3)_ |
+| EAS Scan schema link | _(Week 3)_ |
+| Dune dashboard | _(Week 3 — public)_ |
+| Farcaster Frame | `/api/frame/attest` _(Week 3 — public)_ |
 
 ## Architecture (minimal)
 

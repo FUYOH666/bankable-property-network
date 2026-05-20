@@ -3,7 +3,7 @@
 > **Goal:** put the v1 branch on the right foundation before the heavy
 > surgery of Week 1.
 
-## Status
+## Status — Week 0 complete and fully autonomous
 
 | Step | Status |
 |------|--------|
@@ -12,76 +12,42 @@
 | Create `contracts/` skeleton (Foundry src/test/script) | Done |
 | Draft new root README with pivot story (`docs/v1/README_DRAFT.md`) | Done |
 | Define EAS Schema `SettlementApproval` (`docs/v1/ATTESTATION_SCHEMA.md`) | Done |
-| Update `CHANGELOG.md` with pivot entry | Done |
-| **Manual step:** generate attester wallet, fund on Base Sepolia, register schema | **Pending — see below** |
+| Install Foundry (forge / cast / anvil 1.7.1) | Done |
+| Start local Anvil fork of Base Sepolia (port 8545, chainId 84532) | Done |
+| Verify EAS contract present on fork at `0x4200…0021` | Done (code length 4121) |
+| Register `SettlementApproval` schema on fork via SchemaRegistry | Done |
+| Verify schema via `getSchema(uid)` readback | Done |
+| Author `scripts/dev-chain.sh` + `scripts/stop-dev-chain.sh` (idempotent) | Done |
+| Author `docs/v1/DEV_SIMULATION.md` (full simulation guide) | Done |
+| Update `CHANGELOG.md` with pivot entries | Done |
+| Update `.env.example` with dev + production modes | Done |
 
-## Manual step you (Aleksandr) must do before Week 1
+**No manual blocker.** Week 1 can start immediately on the dev chain.
 
-This is the only blocker before Week 1 starts. Three sub-steps, ~15 minutes.
+## The one optional manual step (Week 3, not Week 0)
 
-### A. Generate the attester wallet (clean, never reused)
+The real-testnet deploy in Week 3 (so we get public BaseScan / Dune /
+Farcaster URLs for the hackathon submission) requires you to:
 
-```bash
-cast wallet new
-# capture both the address and the private key
-```
+1. Generate a fresh attester wallet with `cast wallet new` (do not reuse
+   any wallet you've used elsewhere).
+2. Open <https://www.alchemy.com/faucets/base-sepolia> and request 0.01 ETH
+   to that address (the wallet UI needs ~60 seconds with the captcha).
+3. Send me the address + the faucet tx hash (private key stays in your
+   local `.env` only).
 
-If you don't have `foundry` / `cast` installed yet:
+That's it for the optional step. Everything between Week 0 and Week 3 runs
+on the local fork and needs nothing from you.
 
-```bash
-curl -L https://foundry.paradigm.xyz | bash
-foundryup
-```
-
-Then run `cast wallet new` again.
-
-### B. Fund the attester wallet with Base Sepolia ETH
-
-Open one of these faucets and request a small amount (0.01 ETH is enough):
-
-- <https://www.alchemy.com/faucets/base-sepolia> (Alchemy, recommended)
-- <https://faucet.quicknode.com/base/sepolia> (QuickNode)
-- <https://docs.base.org/docs/tools/network-faucets/> (Coinbase canonical list)
-
-Verify the balance:
-
-```bash
-cast balance --rpc-url https://sepolia.base.org 0xYOUR_ATTESTER_ADDRESS
-```
-
-### C. Register the EAS Schema on Base Sepolia
-
-Follow the steps in [`ATTESTATION_SCHEMA.md` section 2](ATTESTATION_SCHEMA.md#2-registration-on-base-sepolia-manual-week-0).
-
-Paste this exact schema string when prompted:
-
-```text
-bytes32 dealId, address attester, address payeeAddress, address tokenAddress, uint256 amount, uint8 capitalClass, bytes32 evidenceHash, string jurisdiction, uint64 expiresAt, bool payeeVerified
-```
-
-After registration, send me the **Schema UID** (looks like `0xa1b2...`),
-and I will:
-
-1. Add it to `docs/v1/ATTESTATION_SCHEMA.md` section 3.
-2. Add it to the new `.env.example` as `EAS_SCHEMA_UID_SETTLEMENT_APPROVAL=`.
-3. Wire it into the Solidity escrow constructor in Week 2.
-4. Update the README hero table.
-
-### D. Send me
-
-Once the three sub-steps are done, reply with:
-
-```text
-Attester address: 0x...
-Schema UID:       0x...
-Faucet tx (FYI):  0x... (optional, just for the audit trail)
-```
-
-I do **not** need the private key — keep it in your local `.env` only.
+If you'd prefer to skip the public-testnet step entirely (e.g. if Alchemy
+captchas keep failing), we have a fallback: record a 60-second screen
+demo against the local dev chain. SEA Blockchain Week judges usually
+accept that, as long as the EAS protocol and addresses are real (which
+they are on the fork).
 
 ## What happens next (Week 1)
 
-After you complete steps A–D, Week 1 starts. It will:
+Week 1 starts immediately on top of the dev chain. It will:
 
 1. Big `git mv` of legacy modules into `archive/v0.5/`:
    - `apps/api/src/app/services/buyer_consultation.py` + tests

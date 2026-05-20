@@ -1,5 +1,46 @@
 # Changelog
 
+## v1.0.0-pivot.w0.sim — 2026-05-20 (branch `v1/attestation-layer`)
+
+**Full local simulation unlocks autonomous Week 1.** No faucet, no manual
+schema registration needed. Everything runs on an Anvil fork of Base
+Sepolia that inherits real EAS protocol bytecode at canonical addresses.
+
+### What changed
+
+- Installed Foundry 1.7.1 (forge / cast / anvil / chisel).
+- Authored `scripts/dev-chain.sh` (idempotent) — spins up Anvil fork of
+  Base Sepolia on port 8545, verifies EAS contract, registers the
+  `SettlementApproval` schema via SchemaRegistry, writes `.dev-chain.state`.
+- Authored `scripts/stop-dev-chain.sh` — clean shutdown by pid file or
+  port lookup.
+- Documented full simulation in `docs/v1/DEV_SIMULATION.md` (Anvil default
+  account map, architecture diagram, smoke test, switch to real testnet
+  in Week 3).
+- Verified end-to-end: stop → start cycle = ~19 s, schema verified via
+  `getSchema(uid)` readback, deterministic UID
+  `0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96`.
+- Updated `.env.example` with dev + production mode blocks. Dev attester
+  key explicitly marked as the public Anvil test key (never use on
+  mainnet).
+- Updated `.gitignore` for `.dev-chain.state`, `.env.dev`, Foundry build
+  artefacts, and Anvil logs.
+- Marked the previous "manual blocker" in `WEEK0_BOOTSTRAP.md` as no
+  longer blocking. The faucet step survives only as an optional Week 3
+  task for public-testnet visibility (or skipped entirely with a recorded
+  demo).
+- Filled live registration data in `docs/v1/ATTESTATION_SCHEMA.md` §3a
+  (dev fork) and §3b placeholder (real Base Sepolia Week 3).
+
+### Why fork-not-mock
+
+A pure Anvil node would have required us to deploy mock EAS / SchemaRegistry
+contracts ourselves. Forking Base Sepolia gives us the real protocol bytecode
+at the canonical addresses (`0x4200…0021`, `0x4200…0020`), so all behaviour —
+event topics, gas, revert messages, ABI — is identical to production. The
+escrow contract we build in Week 2 will not need any code path changes when
+we switch from local fork to real testnet in Week 3.
+
 ## v1.0.0-pivot.w0 — 2026-05-20 (branch `v1/attestation-layer`)
 
 **GODMODE pivot — Week 0 bootstrap.** This is the start of a radical

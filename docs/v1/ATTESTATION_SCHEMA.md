@@ -106,17 +106,48 @@ Schema registration is a one-time on-chain action. It requires:
    - `docs/v1/README_DRAFT.md` → table "What's on-chain"
    - `docs/v1/ATTESTATION_SCHEMA.md` → this file, section 3 below
 
-## 3. Live registration data (filled when registered)
+## 3. Live registration data
+
+### 3a. Dev simulation (Anvil fork of Base Sepolia, port 8545)
+
+Registered automatically by `scripts/dev-chain.sh`. The UID is deterministic
+because EAS computes it from the schema string + resolver + revocable
+arguments. Every fresh fork re-registers and yields the same UID.
 
 | Field | Value |
 |-------|-------|
-| Network | Base Sepolia (chainId 84532) |
-| EAS contract | `0x4200000000000000000000000000000000000021` (canonical on all Base / Optimism networks) |
-| Schema UID | `_(to be filled when registered)_` |
-| Registered by | `_(attester address)_` |
-| Registered at block | `_(block number)_` |
-| Tx hash | `_(deployment tx)_` |
-| EAS UI link | `_(https://base-sepolia.easscan.org/schema/view/<uid>)_` |
+| Network | Anvil fork of Base Sepolia (chainId 84532) |
+| RPC URL | `http://127.0.0.1:8545` |
+| EAS contract | `0x4200000000000000000000000000000000000021` (canonical) |
+| SchemaRegistry contract | `0x4200000000000000000000000000000000000020` (canonical) |
+| Schema UID | `0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96` |
+| Resolver | `0x0000000000000000000000000000000000000000` (none) |
+| Revocable | `true` |
+| Registered by (dev attester) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Anvil acc 0) |
+| First registration tx (fork) | `0x371377c21cbe776533f6b04acb13e243f17205aeca21b0cb8c69a7f488734fbe` |
+| First registration block | `41754039` |
+| Gas used | `259,210` |
+| Verified | `getSchema(uid)` readback ✓ |
+| EAS UI on real testnet | <https://base-sepolia.easscan.org/schema/view/0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96> (will resolve once registered on real Base Sepolia in Week 3) |
+
+### 3b. Real Base Sepolia (Week 3)
+
+To be filled when the Week 3 real-testnet deploy happens. Schema string,
+resolver, and revocable flag are identical to §3a, so the UID will be the
+same `0x1f64ec96…` (deterministic).
+
+| Field | Value |
+|-------|-------|
+| Network | Base Sepolia (real, chainId 84532) |
+| RPC URL | `https://sepolia.base.org` |
+| Schema UID | `0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96` (expected — same as dev) |
+| Registered by | _(real attester EOA, generated in Week 3)_ |
+| Tx hash | _(to be filled)_ |
+| Block number | _(to be filled)_ |
+
+If a different party has already registered this exact schema on real Base
+Sepolia, the `register()` call will revert with `AlreadyExists()` — that
+is a success path for us: we simply reuse the existing UID.
 
 ## 4. How AttestRWA writes attestations
 
