@@ -27,16 +27,20 @@ export default function Page() {
           <h2>On-chain artefacts (dev fork of Base Sepolia)</h2>
           <ul>
             <li>
+              <strong>SettlementEscrow.sol:</strong>
+              <code>0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8</code>
+            </li>
+            <li>
+              <strong>MockUSDC.sol:</strong>
+              <code>0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4</code>
+            </li>
+            <li>
               <strong>EAS Schema UID:</strong>
               <code>0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96</code>
             </li>
             <li>
               <strong>EAS contract:</strong>
               <code>0x4200000000000000000000000000000000000021</code>
-            </li>
-            <li>
-              <strong>SchemaRegistry:</strong>
-              <code>0x4200000000000000000000000000000000000020</code>
             </li>
             <li>
               <strong>Attester EOA (dev):</strong>

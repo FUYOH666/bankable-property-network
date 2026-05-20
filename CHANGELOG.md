@@ -1,5 +1,79 @@
 # Changelog
 
+## v1.0.0-alpha.2.w2.1 — 2026-05-20 (branch `v1/attestation-layer`)
+
+**Week 2.1 — Foundry contracts shipped and deployed to dev fork.** Pivot
+core primitives now exist on-chain (on the local fork of Base Sepolia)
+with full Foundry unit + fuzz coverage.
+
+### Added
+- `contracts/foundry.toml`, `contracts/remappings.txt`,
+  `contracts/slither.config.json`, `contracts/.gitignore` — Foundry
+  workspace with solc 0.8.26, 1M-run optimizer, default fuzz 256 runs.
+- `contracts/lib/` (gitignored, populated via `forge install --no-git`):
+  forge-std, OpenZeppelin v5.0.2, ethereum-attestation-service eas-contracts.
+- `contracts/src/MockUSDC.sol` — minimal ERC-20 with 6 decimals + public
+  `mint`. Demo-only token; never deploys on mainnet.
+- `contracts/src/SettlementEscrow.sol` (~280 LOC, full NatSpec):
+  - `deposit / release / refund` workflow with `ReentrancyGuard` + `Ownable`
+  - `Deal` struct keyed by `dealId`; one deposit per id
+  - EAS attestation verification: schema pin, revocation check,
+    expiration check, attester whitelist, payee/token/amount cross-check
+    against deposit, payee-verified flag, capital-class threshold
+  - Refund paths: deadline expiry, attester-signed reject (payeeVerified
+    false or capitalClass red)
+  - Events: `Deposited`, `SettlementReleased`, `SettlementRefunded`,
+    `AttesterTrustChanged`
+  - 20+ custom errors for gas-efficient revert reasons
+- `contracts/test/MockUSDC.t.sol` — 4 tests incl. one fuzz.
+- `contracts/test/MockEAS.sol` — IEAS stub for tests (lets us seed
+  arbitrary `Attestation` records into `getAttestation`).
+- `contracts/test/SettlementEscrow.t.sol` — 29 tests:
+  - 3 constructor paths
+  - 2 admin paths
+  - 8 deposit paths (happy + 7 reverts)
+  - 8 release paths (happy + 7 reject branches: wrong schema, revoked,
+    expired, untrusted attester, payee mismatch, capital red, payee not
+    verified, replay across deals; plus dup-release)
+  - 4 refund paths (deadline expiry, before-deadline revert, payee-bad
+    refund, capital-red refund) + caller-not-buyer
+  - 1 fuzz on amount and deadline (256 runs)
+- `contracts/script/Deploy.s.sol` — deploy script reading `PRIVATE_KEY`,
+  `EAS_SCHEMA_UID_SETTLEMENT_APPROVAL`, `ATTESTER_ADDRESS` env vars.
+  Wires the attester whitelist and pre-mints 1,000,000 mUSDC to the
+  deployer for booth flow.
+- `scripts/deploy-contracts.sh` — idempotent wrapper that reads
+  `.dev-chain.state`, runs the deploy script, parses addresses, and
+  appends them back into the state file.
+
+### Deployed (dev fork of Base Sepolia)
+- `MockUSDC` = `0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4`
+- `SettlementEscrow` = `0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8`
+- Trusted attester whitelisted at deploy: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
+- Deployer pre-balance: 1,000,000 mUSDC
+
+### Verified
+- `forge build` clean (4 `block-timestamp` warnings — acceptable for
+  hour-scale deadlines; documented in `docs/SECURITY.md`).
+- `forge test --gas-report`: **33/33 passed** in 45 ms.
+- Gas budgets (max):
+  - `release()` = 118,733 (< 120k target ✓)
+  - `refund()` = 102,176
+  - `deposit()` = 176,087
+  - `setAttester()` = 47,626
+- Live deploy via `forge script script/Deploy.s.sol --broadcast` against
+  Anvil fork succeeded (chain 84532, deterministic addresses captured).
+
+### Propagated
+- `README.md` on-chain artefact table updated with contract addresses.
+- `docs/ARCHITECTURE.md` contracts table updated.
+- `apps/web/src/app/page.tsx` v1 hero stub updated with addresses.
+- `.env.example` now lists `MOCK_USDC_ADDRESS` + `SETTLEMENT_ESCROW_ADDRESS`.
+
+### Next (Week 2.2)
+- Attester service: `eas_client.py`, `wallet_taint.py`,
+  `compliance_dsl.py`, `attester_service.py`, `POST /attest/settlement`.
+
 ## v1.0.0-alpha.1 — 2026-05-20 (branch `v1/attestation-layer`)
 
 **Week 1 complete: surgery, rebrand, slim docs.** Foundation ready for the

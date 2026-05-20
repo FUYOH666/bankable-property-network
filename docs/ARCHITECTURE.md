@@ -43,8 +43,8 @@ submission. Production target: Base mainnet (deferred post-hackathon).
 | EAS | `0x4200000000000000000000000000000000000021` (canonical) | Attestation registry |
 | SchemaRegistry | `0x4200000000000000000000000000000000000020` (canonical) | Schema definitions |
 | SettlementApproval Schema | UID `0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96` | 10-field deal attestation |
-| SettlementEscrow.sol | _(deploy Week 2)_ | Holds stablecoin, releases on valid attestation |
-| MockUSDC.sol | _(deploy Week 2)_ | Demo ERC-20 stablecoin (mint to anyone for testing) |
+| SettlementEscrow.sol | `0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8` (dev fork) | Holds stablecoin, releases on valid attestation |
+| MockUSDC.sol | `0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4` (dev fork) | Demo ERC-20 stablecoin (mint to anyone for testing) |
 
 See [`ATTESTATION_SCHEMA.md`](ATTESTATION_SCHEMA.md) for full schema.
 

@@ -6,10 +6,24 @@
 
 | Week | Goal | Status |
 |------|------|--------|
-| **Week 0** | Branch, archive scaffold, EAS schema registered on dev fork, draft README with pivot story, Foundry installed, scripts/dev-chain.sh idempotent | **Done** |
-| **Week 1** | Archive legacy modules to `archive/v0.5/`, rebrand to AttestRWA, slim docs from 53 to 8, extend synthetic data with wallet addresses + 3 RWA scenarios, pytest baseline stays green | **In progress** |
-| **Week 2** | `SettlementEscrow.sol` + `MockUSDC.sol` with Foundry fuzz tests and slither audit. Attester service (`POST /attest/settlement`, EAS client, wallet taint, compliance DSL). Single-screen wallet UI on Next.js | Pending |
+| **Week 0** | Branch, archive scaffold, EAS schema registered on dev fork, draft README with pivot story, Foundry installed, `scripts/dev-chain.sh` idempotent | **Done** (commits `02e8151`, `58aba55`) |
+| **Week 1** | Archive legacy modules to `archive/v0.5/`, rebrand to AttestRWA, slim docs from 53 to 8, extend synthetic data with wallet addresses + 3 RWA scenarios, pytest baseline stays green | **Done** (commits `e799c43`, `cf5ec4e`, tag `v1.0.0-alpha.1`) |
+| **Week 2** | `SettlementEscrow.sol` + `MockUSDC.sol` with Foundry fuzz tests + slither audit. Attester service (`POST /attest/settlement`, EAS client, wallet taint, compliance DSL). Single-screen wallet UI on Next.js. End-to-end smoke (buyer → deposit → attester → EAS → release). Tag `v1.0.0-alpha.2` | **In progress** |
 | **Week 3** | Farcaster Frame `/api/frame/attest`. Dune Analytics public dashboard. Real Base Sepolia deploy (one optional 60s faucet step). 60s backup video. Tag `v1.0.0` | Pending |
+
+### Week 2 sub-tasks
+
+1. Foundry workspace setup (`forge init`, OpenZeppelin + EAS + forge-std deps, `foundry.toml`, `remappings.txt`, `slither.config.json`).
+2. `MockUSDC.sol` — minimal ERC-20 with public mint for demos.
+3. `SettlementEscrow.sol` — deposit / release / refund + EAS verification, ReentrancyGuard, NatSpec.
+4. Foundry unit tests — happy + 6 reject branches (payee mismatch, capital red, expired attestation, revoked attestation, replay across deals, wrong schema impostor).
+5. Foundry fuzz / invariant tests — amount overflow, deadline edge, attestation tampering, reentrancy.
+6. Slither audit (zero high / medium), gas report (target: `release()` <120k gas).
+7. Deploy script (`forge script Deploy.s.sol`) against the Anvil fork; capture addresses into README hero.
+8. Backend attester service: `eas_client.py` (web3.py + EAS ABI), `wallet_taint.py` (mock Chainalysis), `compliance_dsl.py` (YAML rule parser), `attester_service.py` orchestrator, `POST /attest/settlement` endpoint with Pydantic schema-bound response. TDD with pytest.
+9. Single-screen UI (`apps/web/src/app/rwa-settlement-live.tsx`): wagmi + viem + RainbowKit, wallet connect, deposit form, live escrow event watcher, attester poll, cinematic transitions.
+10. E2E smoke script (`scripts/e2e_rwa_flow.sh`): buyer → escrow.deposit → attester decide → EAS.attest → escrow.release → BaseScan-style assertion.
+11. Tag `v1.0.0-alpha.2`.
 
 Deliverables at end of Week 3:
 

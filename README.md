@@ -49,8 +49,8 @@ Spin up the full stack in one command: `./scripts/dev-chain.sh`. See
 | EAS contract (canonical) | `0x4200000000000000000000000000000000000021` |
 | SchemaRegistry (canonical) | `0x4200000000000000000000000000000000000020` |
 | Attester EOA (dev) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Anvil acc 0) |
-| `SettlementEscrow.sol` | _(deploy Week 2)_ |
-| `MockUSDC.sol` | _(deploy Week 2)_ |
+| `SettlementEscrow.sol` | `0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8` |
+| `MockUSDC.sol` | `0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4` |
 
 ### Real Base Sepolia (Week 3 — public for hackathon submission)
 
