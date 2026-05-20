@@ -73,9 +73,6 @@ jobs:
   slither:
     name: Slither (static analysis)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: contracts
     steps:
       - uses: actions/checkout@v4
 
@@ -85,6 +82,7 @@ jobs:
           version: stable
 
       - name: Install Solidity dependencies
+        working-directory: contracts
         run: |
           forge install foundry-rs/forge-std --no-git --shallow
           forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-git --shallow
@@ -93,11 +91,11 @@ jobs:
       - name: Run Slither
         uses: crytic/slither-action@v0.4.0
         with:
-          target: contracts/
+          target: contracts/src/SettlementEscrow.sol
           slither-config: contracts/slither.config.json
           fail-on: medium
           slither-args: >-
-            --filter-paths "lib/"
+            --filter-paths
+            "lib/"
             --exclude-low
             --exclude-informational
-            src/SettlementEscrow.sol
