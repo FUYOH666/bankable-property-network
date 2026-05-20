@@ -8,8 +8,8 @@
 |------|------|--------|
 | **Week 0** | Branch, archive scaffold, EAS schema registered on dev fork, draft README with pivot story, Foundry installed, `scripts/dev-chain.sh` idempotent | **Done** (commits `02e8151`, `58aba55`) |
 | **Week 1** | Archive legacy modules to `archive/v0.5/`, rebrand to AttestRWA, slim docs from 53 to 8, extend synthetic data with wallet addresses + 3 RWA scenarios, pytest baseline stays green | **Done** (commits `e799c43`, `cf5ec4e`, tag `v1.0.0-alpha.1`) |
-| **Week 2** | `SettlementEscrow.sol` + `MockUSDC.sol` with Foundry fuzz tests + slither audit. Attester service (`POST /attest/settlement`, EAS client, wallet taint, compliance DSL). Single-screen wallet UI on Next.js. End-to-end smoke (buyer → deposit → attester → EAS → release). Tag `v1.0.0-alpha.2` | **In progress** |
-| **Week 3** | Farcaster Frame `/api/frame/attest`. Dune Analytics public dashboard. Real Base Sepolia deploy (one optional 60s faucet step). 60s backup video. Tag `v1.0.0` | Pending |
+| **Week 2** | `SettlementEscrow.sol` + `MockUSDC.sol` with Foundry tests + slither audit. Attester service (`POST /attest/settlement`, EAS client, wallet taint, compliance DSL). End-to-end happy-path smoke against the dev fork. Tag `v1.0.0-alpha.2` | **Done** (commits `0b8ee1f`, `e78e8e4`, `e9b04af`) |
+| **Week 3** | Reject-path E2E (`scripts/e2e_rwa_reject.sh`). Farcaster Frame `/api/frame/attest` (HTML + inline SVG). Dune Analytics query pack (`docs/DUNE_QUERIES.md`). Slither audit pass (0 findings). Expanded threat model. README quickstart. Tag `v1.0.0` | **Done** |
 
 ### Week 2 sub-tasks
 

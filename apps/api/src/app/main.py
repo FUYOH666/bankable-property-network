@@ -303,3 +303,53 @@ def get_attestation_for_deal(deal_id: str) -> dict[str, object]:
         "attestation": None,
         "note": "Per-deal attestation lookup is wired via the EAS indexer in Week 3.",
     }
+
+
+# ---- Farcaster Frame --------------------------------------------------------
+
+from fastapi import Request  # noqa: E402  (top-level import is fine but localised here)
+from fastapi.responses import HTMLResponse, Response  # noqa: E402
+
+from app.services.farcaster_frame import frame_html, status_svg  # noqa: E402
+
+
+def _base_url(request: Request) -> str:
+    return f"{request.url.scheme}://{request.url.netloc}"
+
+
+def _basescan_link_for_deal(deal_id: str | None) -> str:
+    if not deal_id:
+        return "https://base-sepolia.easscan.org/"
+    return f"https://base-sepolia.easscan.org/attestation/view/{deal_id}"
+
+
+@app.get("/api/frame/attest", response_class=HTMLResponse)
+def frame_attest(request: Request, deal_id: str | None = None, decision: str | None = None) -> HTMLResponse:
+    """Farcaster Frame entry point — renders status meta tags + SVG image."""
+    base = _base_url(request)
+    img_q = f"?deal_id={deal_id}" if deal_id else ""
+    if decision:
+        sep = "&" if img_q else "?"
+        img_q += f"{sep}decision={decision}"
+    image_url = f"{base}/api/frame/image{img_q}"
+    post_url = f"{base}/api/frame/attest"
+    return HTMLResponse(
+        content=frame_html(
+            image_url=image_url,
+            post_url=post_url,
+            button_2_link=_basescan_link_for_deal(deal_id),
+        )
+    )
+
+
+@app.post("/api/frame/attest", response_class=HTMLResponse)
+def frame_attest_post(request: Request) -> HTMLResponse:
+    """Button-click handler — for the hackathon demo we just bounce back to GET."""
+    return frame_attest(request)
+
+
+@app.get("/api/frame/image")
+def frame_image(deal_id: str | None = None, decision: str | None = None) -> Response:
+    """Serve the dynamically rendered Frame status SVG."""
+    svg = status_svg(decision=decision, deal_id=deal_id)
+    return Response(content=svg, media_type="image/svg+xml")

@@ -52,16 +52,24 @@ Spin up the full stack in one command: `./scripts/dev-chain.sh`. See
 | `SettlementEscrow.sol` | `0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8` |
 | `MockUSDC.sol` | `0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4` |
 
-### Real Base Sepolia (Week 3 — public for hackathon submission)
+### Distribution channels (live on the dev stack)
+
+| Channel | Where |
+|---------|-------|
+| Farcaster Frame | `GET /api/frame/attest?deal_id=…&decision=…` returns Frame HTML + inline SVG image; `POST` is the button handler. Local: <http://localhost:8080/api/frame/attest?decision=approve>. |
+| Dune Analytics queries | [`docs/DUNE_QUERIES.md`](docs/DUNE_QUERIES.md) — copy-paste into Dune once contracts are public. |
+| E2E happy demo | `./scripts/e2e_rwa_flow.sh` — buyer deposits, attester signs EAS attestation, escrow releases to verified payee. |
+| E2E reject demo | `./scripts/e2e_rwa_reject.sh` — buyer instructs impostor payee, attester signs reject, escrow refuses release, buyer refunds. |
+
+### Real Base Sepolia (Week 3 — optional for public hackathon submission)
 
 | Artefact | Status |
 |----------|--------|
-| Schema UID | Same as dev (deterministic) — to be registered Week 3 |
-| Attester EOA (real, public address) | _(generate Week 3)_ |
-| BaseScan deploy link | _(Week 3)_ |
-| EAS Scan schema link | _(Week 3)_ |
-| Dune dashboard | _(Week 3 — public)_ |
-| Farcaster Frame | `/api/frame/attest` _(Week 3 — public)_ |
+| Schema UID | Same as dev (deterministic) — register on real Base Sepolia in 60 s with `cast send`, see `docs/ATTESTATION_SCHEMA.md` § 2. |
+| Attester EOA (real, public address) | Generated via `cast wallet new`, funded via the Alchemy Base Sepolia faucet. |
+| BaseScan deploy link | Created when `./scripts/deploy-contracts.sh` runs with `DEV_RPC_URL=https://sepolia.base.org`. |
+| EAS Scan schema link | <https://base-sepolia.easscan.org/schema/view/0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96> (resolves once registered on the real testnet). |
+| Dune dashboard | Created from `docs/DUNE_QUERIES.md` queries once a public-testnet attestation exists. |
 
 ## Architecture (minimal)
 
@@ -141,17 +149,41 @@ This is RWA growing up.
 
 | Layer | Choice |
 |-------|--------|
-| L2 | Base Sepolia (testnet) → Base mainnet (production) |
-| Attestations | EAS (Ethereum Attestation Service) |
+| L2 | Base Sepolia (testnet, fork via Anvil for dev) → Base mainnet (production) |
+| Attestations | EAS — canonical at `0x4200000000000000000000000000000000000021` |
 | Stablecoin | Mock USDC ERC-20 (demo); USDC / USDT (production) |
-| Contracts | Solidity 0.8.x + Foundry (fuzz + invariants + slither) |
-| Wallet | wagmi + viem + RainbowKit |
-| Backend | Python 3.12 + FastAPI + uv |
+| Contracts | Solidity 0.8.26 + Foundry 1.7 (33/33 tests + fuzz; slither clean — 0 findings) |
+| Wallet | wagmi + viem + RainbowKit (UI scaffold; CLI e2e demo lives in `scripts/`) |
+| Backend | Python 3.12 + FastAPI + uv + web3.py 7 + eth-account + eth-abi |
 | Compliance evidence | Qdrant + BGE-M3 + reranker (RAG over synthetic policy corpus) |
 | LLM (explainability only, optional) | LM Studio (Qwen-class) — schema-bound, never auto-decides |
 | Frontend | Next.js + TypeScript + pnpm |
-| Analytics | Dune Analytics (public dashboard) |
-| Distribution | Farcaster Frame |
+| Analytics | Dune Analytics — public queries in `docs/DUNE_QUERIES.md` |
+| Distribution | Farcaster Frame at `/api/frame/attest` |
+
+## Quickstart (one terminal, ~2 minutes)
+
+```bash
+# 1. Foundry (one-time install)
+curl -L https://foundry.paradigm.xyz | bash && source ~/.zshenv && foundryup
+
+# 2. Start the dev chain (Anvil fork of Base Sepolia + EAS schema registered)
+./scripts/dev-chain.sh
+
+# 3. Deploy MockUSDC + SettlementEscrow against the fork
+./scripts/deploy-contracts.sh
+
+# 4. Run the happy-path E2E demo (boots FastAPI attester if not up)
+./scripts/e2e_rwa_flow.sh
+
+# 5. Run the reject-path E2E demo
+./scripts/e2e_rwa_reject.sh
+
+# 6. Open the Farcaster Frame preview
+open http://localhost:8080/api/frame/attest?decision=approve
+```
+
+Stop the dev chain with `./scripts/stop-dev-chain.sh`.
 
 ## What we don't build (explicit boundaries)
 

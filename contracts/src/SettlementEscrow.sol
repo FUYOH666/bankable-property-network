@@ -205,7 +205,7 @@ contract SettlementEscrow is ReentrancyGuard, Ownable {
         if (d.refunded) revert DealAlreadyRefunded();
         if (msg.sender != d.buyer) revert CallerNotBuyer();
 
-        string memory reason;
+        string memory reason = "";
         if (attestationUid == bytes32(0)) {
             if (uint64(block.timestamp) < d.deadline) revert DeadlineNotReached();
             reason = "deadline_reached_no_attestation";

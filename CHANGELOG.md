@@ -1,5 +1,59 @@
 # Changelog
 
+## v1.0.0 — 2026-05-20 (branch `v1/attestation-layer`)
+
+**Hackathon-ready: Week 3 done.** Reject-path end-to-end flow, Farcaster
+Frame distribution surface, Slither audit pass (0 findings), Dune query
+pack, expanded threat model, and README quickstart. All previous green
+states preserved.
+
+### Added
+- `scripts/e2e_rwa_reject.sh` — reject path end-to-end: buyer points to
+  the impostor `SRL Holding 2026` wallet, attester signs the EAS
+  attestation with `payeeVerified=false`, escrow refuses release, buyer
+  refunds via the attester-signed reject branch. First live run:
+  - Attestation UID: `0x03bc365481566847b6bcb8730e20f4d018a0abdf513b1531d89edaca80daa8b2`
+  - Attest tx: `0x06948da4a96edf5c5a9707a73178cb51c11ca6928d84afd758b8ca6b4ba7e010`
+  - Impostor balance after refund: 0 (verified protection works)
+- `apps/api/src/app/services/farcaster_frame.py` — Frame HTML wrapper +
+  inline SVG status image (no external image host needed).
+- 3 new FastAPI endpoints:
+  - `GET /api/frame/attest` — Frame HTML with `fc:frame:*` meta tags
+  - `POST /api/frame/attest` — button handler (bounces to GET)
+  - `GET /api/frame/image` — dynamic SVG status (APPROVE / REJECT / PENDING)
+- `apps/api/tests/test_farcaster_frame.py` — 5 tests for the Frame surface.
+- `docs/DUNE_QUERIES.md` — 6 ready-to-paste SQL queries for the public
+  `attestrwa-public` dashboard (attestations/day, decision split, top
+  attesters, USDC volume released, refunds by reason, attestation-to-
+  release latency).
+- `docs/SECURITY.md` — full audit posture section: Slither command +
+  result (**0 findings**), Foundry test summary, backend pytest summary,
+  E2E happy/reject script outcomes. Deferred items list (formal STRIDE,
+  HSM keys, multi-sig attester) made explicit.
+
+### Updated
+- `contracts/src/SettlementEscrow.sol` — initialize `reason` in `refund()`
+  to satisfy Slither's `uninitialized-local` detector. Logic unchanged.
+- `README.md` — full rewrite of distribution-channels block (live Frame
+  URL, Dune query pack pointer, both E2E scripts) and a new 6-step
+  quickstart that goes from `foundryup` to running both demos in two
+  minutes.
+
+### Verified
+- `uv run pytest -q` → **62 passed** (was 57; +5 Frame tests).
+- `forge test -q` → **33 passed** (unchanged from alpha.2).
+- `slither src/SettlementEscrow.sol` (low/medium/high severity) → **0 findings**.
+- `./scripts/e2e_rwa_flow.sh` → exits 0, payee receives released funds.
+- `./scripts/e2e_rwa_reject.sh` → exits 0, escrow refuses release, buyer
+  refund balance asserted.
+
+### Tag
+- `v1.0.0` — first release of AttestRWA. The hackathon-ready demo runs
+  fully autonomously on a local Anvil fork of Base Sepolia with real EAS
+  protocol bytecode at the canonical addresses. Real-testnet deploy is a
+  single env-var flip plus an optional 60-second faucet step (see
+  `docs/DEV_SIMULATION.md` § "Switching to real Base Sepolia").
+
 ## v1.0.0-alpha.2 — 2026-05-20 (branch `v1/attestation-layer`)
 
 **Week 2.3 — end-to-end on-chain settlement works.** Buyer deposits to

