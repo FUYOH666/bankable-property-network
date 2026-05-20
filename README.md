@@ -122,7 +122,8 @@ didn't (buyer consult, WhatsApp bot, 8 panels, 45 docs).
 ## Why this wins at SEA Blockchain Week 2026
 
 - **Most RWA projects** build tokenization (Centrifuge, Maple, RealT,
-  Polytrade) — we don't compete, we're the layer above.
+  Polytrade) — we don't compete, we're the layer above. Full feature
+  comparison: [`docs/COMPARISON.md`](docs/COMPARISON.md).
 - **Most compliance projects** are KYC (Sumsub, Persona) — we're on-chain
   attestation primitives, not identity.
 - **Most blockchain-property projects** tokenize titles — legal mess. We

@@ -2,11 +2,14 @@ export default function Page() {
   return (
     <main>
       <section className="hero">
-        <div className="eyebrow">v1.0.0-alpha · Settlement Attestation Layer for RWA</div>
+        <div className="eyebrow">v1.0.0 · Settlement Attestation Layer for RWA</div>
         <h1>AttestRWA</h1>
         <p>
           On-chain compliance bridge that turns bank verification rules into machine-verifiable attestations, so
           stablecoin payments for real-world assets release only when the deal is bank-grade.
+        </p>
+        <p>
+          <a className="button-link" href="/rwa-settlement-live">Open the live settlement demo</a>
         </p>
       </section>
 

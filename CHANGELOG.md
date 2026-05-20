@@ -1,5 +1,65 @@
 # Changelog
 
+## v1.0.0-polish.1 — 2026-05-20 (branch `v1/attestation-layer`)
+
+Finalization polish on top of the `v1.0.0` tag. No tag bump yet — these
+commits become `v1.0.0-final` once Phase 3 (real-testnet deploy) and
+Phase 4 (Vercel + Render) land. All previous green states preserved.
+
+### Added — Phase 1 (CI) + Phase 2 (OSS hygiene) — commit `74236ca`
+
+- `.github/workflows/ci.yml`: three parallel jobs — `contracts` (forge
+  build + test + gas report), `backend` (uv sync + pytest), `slither`
+  (crytic/slither-action with our remappings, fail-on=medium).
+- `.github/PULL_REQUEST_TEMPLATE.md`: structured checkboxes (forge,
+  pytest, slither, e2e, CHANGELOG, no-secrets).
+- `.github/ISSUE_TEMPLATE/bug.yml` + `feature.yml`: structured forms with
+  area dropdown, repro, env, non-goals reminder.
+- `.github/CODEOWNERS`: `* @FUYOH666`.
+- Root `CONTRIBUTING.md`: quickstart + verification checklist + commit
+  conventions + accepted/rejected change types.
+- Root `CODE_OF_CONDUCT.md`: Contributor Covenant 2.1.
+- Root `SECURITY.md`: pointer to `docs/SECURITY.md`, GitHub Security
+  Advisory link, response process, explicit out-of-scope list.
+- `README.md`: replaced v1.0.0-rc placeholder badge with ten content-
+  bearing badges (CI status, forge 33/33, pytest 62/62, slither 0,
+  solidity 0.8.26, foundry 1.7.1, network, EAS schema, license,
+  hackathon).
+
+### Added — Phase 5 (wallet UI) + Phase 9 prep (comparison)
+
+- `docs/COMPARISON.md`: full feature comparison vs Centrifuge, Maple,
+  RealT, Ondo, Polytrade — explicit "we are the layer above tokenization"
+  positioning. Includes honest weakness section.
+- `apps/web` web3 dependencies: `wagmi@^2`, `viem@^2`,
+  `@rainbow-me/rainbowkit@^2`, `@tanstack/react-query@^5` (+ ~140 transitive deps).
+- `apps/web/src/lib/contracts.ts`: minimal ABIs for MockUSDC + Settlement
+  Escrow, default addresses from the dev fork deployment (overridable via
+  `NEXT_PUBLIC_*` env), two named scenarios (`happy`, `rejectPayee`).
+- `apps/web/src/app/providers.tsx`: RainbowKit + wagmi + react-query
+  providers, baseSepolia chain config, SSR-safe.
+- `apps/web/src/app/layout.tsx`: AttestRWA metadata, OpenGraph, providers
+  wrapping.
+- `apps/web/src/app/rwa-settlement-live/page.tsx` (~340 LOC): single
+  cinematic demo screen with `ConnectButton`, scenario selector, six-step
+  action row (mint / approve / deposit / attest / release / refund),
+  live buyer & payee balances (4 s refetch), decision panel with EAS
+  Scan + BaseScan deep links, compliance rule table, activity log.
+- `apps/web/src/app/globals.css`: appended `.live`, `.scenario-grid`,
+  `.action-row`, `.decision-*`, `.rules`, `.logs` block (~150 LOC).
+- `apps/web/src/app/page.tsx`: hero now includes a CTA button to
+  `/rwa-settlement-live`.
+- `apps/web/tsconfig.json`: `paths` mapping for `@/*` (no deprecated
+  `baseUrl`).
+
+### Verified
+- `pnpm run typecheck` (apps/web): clean.
+- `pnpm run build` (apps/web): compiled successfully, 2 static routes
+  (`/`, `/rwa-settlement-live`) prerendered.
+- `forge test` (contracts): 33/33 still green.
+- `uv run pytest -q` (apps/api): 62/62 still green.
+- No secrets in any commit.
+
 ## v1.0.0 — 2026-05-20 (branch `v1/attestation-layer`)
 
 **Hackathon-ready: Week 3 done.** Reject-path end-to-end flow, Farcaster
