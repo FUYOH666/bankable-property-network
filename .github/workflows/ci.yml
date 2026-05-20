@@ -88,14 +88,30 @@ jobs:
           forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-git --shallow
           forge install ethereum-attestation-service/eas-contracts --no-git --shallow
 
-      - name: Run Slither
-        uses: crytic/slither-action@v0.4.0
+      - name: Forge build (so crytic-compile finds artefacts)
+        working-directory: contracts
+        run: forge build --sizes
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          target: contracts/src/SettlementEscrow.sol
-          slither-config: contracts/slither.config.json
-          fail-on: medium
-          slither-args: >-
-            --filter-paths
-            "lib/"
-            --exclude-low
-            --exclude-informational
+          python-version: "3.12"
+
+      - name: Install slither-analyzer
+        run: pip install slither-analyzer
+
+      - name: Install solc 0.8.26
+        run: |
+          pip install solc-select
+          solc-select install 0.8.26
+          solc-select use 0.8.26
+
+      - name: Run Slither
+        working-directory: contracts
+        run: |
+          slither src/SettlementEscrow.sol \
+            --solc-remaps "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ @eas/=lib/eas-contracts/contracts/ forge-std/=lib/forge-std/src/" \
+            --filter-paths "lib/" \
+            --exclude-low \
+            --exclude-informational \
+            --fail-medium
