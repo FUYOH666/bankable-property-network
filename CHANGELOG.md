@@ -1,5 +1,58 @@
 # Changelog
 
+## v1.0.0-pivot.w0 — 2026-05-20 (branch `v1/attestation-layer`)
+
+**GODMODE pivot — Week 0 bootstrap.** This is the start of a radical
+repositioning from "Bankable Property Network" (B2B bank settlement
+infrastructure for Thailand property) to **AttestRWA** (Settlement
+Attestation Layer for RWA) — a web3-native on-chain compliance bridge for
+stablecoin real-world-asset settlements, targeting SEA Blockchain Week
+2026.
+
+Full plan: `.cursor/plans/godmode-pivot-attestation-layer_*.plan.md`.
+
+### What changed
+
+- Branched `v1/attestation-layer` from `main@7148ac5` (v0.5.13). `main`
+  stays as safety until `v1.0.0` is ready to merge.
+- Created `archive/v0.5/` scaffold; legacy modules will be moved here in
+  Week 1 via `git mv` (commit history preserved).
+- Created `contracts/` Foundry workspace skeleton (Week 2 fills in
+  `SettlementEscrow.sol` + `MockUSDC.sol` + fuzz tests).
+- Drafted new root README in `docs/v1/README_DRAFT.md` with the AttestRWA
+  hook, pivot story, on-chain artefact table, and Week 0–3 roadmap.
+- Defined EAS Schema `SettlementApproval` in
+  `docs/v1/ATTESTATION_SCHEMA.md` — schema string, field semantics,
+  threat model stub, registration instructions, escrow integration sketch.
+- Documented Week 0 bootstrap state and the single manual step
+  (generate attester EOA, fund on Base Sepolia, register schema) in
+  `docs/v1/WEEK0_BOOTSTRAP.md`.
+
+### Decisions locked (Week 0)
+
+| Slot | Value |
+|------|-------|
+| Brand | AttestRWA |
+| Network | Base Sepolia (chainId 84532) |
+| Stablecoin | Mock USDC ERC-20 (own deployment) |
+| Contracts | Foundry (fuzz + invariants + slither) |
+| Wallet stack | wagmi + viem + RainbowKit |
+| Buyer consult fate | Archive to `archive/v0.5/` |
+| Timeline | 1–3 weeks "divine" mode |
+| Demo | Live testnet + 3 pre-funded deals + 60s backup video |
+
+### Next (blocking Week 1)
+
+User must complete manual steps in `docs/v1/WEEK0_BOOTSTRAP.md` §A–D:
+
+1. Generate attester EOA (`cast wallet new`).
+2. Fund on Base Sepolia (Alchemy / QuickNode faucet).
+3. Register `SettlementApproval` schema on Base Sepolia EAS.
+4. Report Schema UID + attester address back.
+
+After that: Week 1 surgery (archive legacy, rebrand, slim docs, extend
+synthetic data) starts.
+
 ## 0.5.13 - 2026-05-20
 
 - Full project audit: [`docs/PROJECT_AUDIT_REPORT.md`](docs/PROJECT_AUDIT_REPORT.md) — system map, LIVE vs ROADMAP, effectiveness re-score, P0/P1/P2 backlog.
