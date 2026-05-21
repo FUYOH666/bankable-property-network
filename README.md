@@ -93,14 +93,13 @@ Buyer wallet  --USDC-->  SettlementEscrow.sol  --reads-->  EAS Registry
                               Developer Feed (synthetic SSOT)
 ```
 
-Full diagram: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) _(to be written Week 1)_
+Full diagram: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 ## Why we pivoted (Pivot story)
 
 We started this project as a B2B bank-grade settlement infrastructure for
 Thailand property — Closing Passport, payee verification, multi-channel
-buyer consult. Six weeks in (commit history visible at `main@v0.5.13`), we
-ran a brutal market check and saw that:
+buyer consult. Before SEABW 2026 we ran a brutal market check and saw that:
 
 1. Bank compliance dashboards are already a saturated category (SAS,
    Quantexa, Actimize).
@@ -112,7 +111,9 @@ ran a brutal market check and saw that:
 
 So we pivoted from B2B SaaS to a web3-native attestation primitive:
 **Settlement Attestation Layer for RWA**. Same engineering foundation,
-sharper edge, broader market.
+sharper edge, broader market. The AttestRWA stack — contracts, attester,
+demo scripts, and recorded video — shipped in roughly **four hours** of
+AI-assisted development for this hackathon.
 
 The pivot is in this repo — see [`archive/v0.5/`](archive/v0.5/) for the
 previous generation. We kept what mattered (payee logic, capital
@@ -144,10 +145,7 @@ This is RWA growing up.
 
 | When | What |
 |------|------|
-| **Week 0 (now)** | Branch, archive scaffold, EAS schema registered, draft narrative |
-| **Week 1** | Surgery: archive old modules, rebrand AttestRWA, slim docs to 8 files, synthetic data with wallet addresses, 3 RWA scenarios |
-| **Week 2** | Foundry contracts + fuzz tests + slither clean + deploy to Base Sepolia; attester service + EAS client + DSL + wallet taint; single-screen UI with wagmi/viem |
-| **Week 3** | Farcaster Frame, Dune dashboard, audit polish, 60s recorded video, README hero finalization, `v1.0.0` tag |
+| **May 2026 (hackathon)** | AttestRWA pivot shipped: EAS schema, `SettlementEscrow`, attester service, approve/reject E2E, Farcaster Frame, Dune query pack, demo video, public repo |
 | **Q3 2026** | First exchange integration — Binance Settlement / OKX RWA / Bybit RWA pilot |
 | **Q4 2026** | First bank attester pilot (Thailand or Singapore) — paid fee per attestation |
 | **2027** | Multi-jurisdiction ASEAN expansion, L2 mainnet, compliance DSL marketplace |
@@ -215,9 +213,3 @@ paths) is in [`docs/HACKATHON_RECORDING_GUIDE.md`](docs/HACKATHON_RECORDING_GUID
 ## License
 
 Apache-2.0. Schema, attester address, and contracts are public.
-
----
-
-_This document is the **Week 0 draft** of the new root README. It replaces
-the v0.5 README in Week 1 (when the old README moves to
-`archive/v0.5/README.md`)._

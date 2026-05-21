@@ -1,17 +1,20 @@
 # Roadmap — AttestRWA
 
-## Hackathon pivot (now)
+## Hackathon build (May 2026)
 
-`v1/attestation-layer` branch from `main@v0.5.13`. Three-week sprint.
+Merged to `main` as `v1.0.0`. The AttestRWA pivot and full stack shipped in
+roughly **four hours** of AI-assisted development for SEABW 2026. Git
+commits are grouped by milestone below (internal labels only — not calendar
+weeks).
 
-| Week | Goal | Status |
-|------|------|--------|
-| **Week 0** | Branch, archive scaffold, EAS schema registered on dev fork, draft README with pivot story, Foundry installed, `scripts/dev-chain.sh` idempotent | **Done** (commits `02e8151`, `58aba55`) |
-| **Week 1** | Archive legacy modules to `archive/v0.5/`, rebrand to AttestRWA, slim docs from 53 to 8, extend synthetic data with wallet addresses + 3 RWA scenarios, pytest baseline stays green | **Done** (commits `e799c43`, `cf5ec4e`, tag `v1.0.0-alpha.1`) |
-| **Week 2** | `SettlementEscrow.sol` + `MockUSDC.sol` with Foundry tests + slither audit. Attester service (`POST /attest/settlement`, EAS client, wallet taint, compliance DSL). End-to-end happy-path smoke against the dev fork. Tag `v1.0.0-alpha.2` | **Done** (commits `0b8ee1f`, `e78e8e4`, `e9b04af`) |
-| **Week 3** | Reject-path E2E (`scripts/e2e_rwa_reject.sh`). Farcaster Frame `/api/frame/attest` (HTML + inline SVG). Dune Analytics query pack (`docs/DUNE_QUERIES.md`). Slither audit pass (0 findings). Expanded threat model. README quickstart. Tag `v1.0.0` | **Done** |
+| Milestone | Shipped | Status |
+|-----------|---------|--------|
+| Dev chain + EAS schema on Anvil fork | `scripts/dev-chain.sh`, schema UID registered | **Done** |
+| Archive + rebrand + slim docs | `archive/v0.5/`, AttestRWA naming, 8 core docs | **Done** |
+| Contracts + attester + happy E2E | Foundry escrow, FastAPI attester, `e2e_rwa_flow.sh` | **Done** |
+| Reject E2E + Frame + polish | `e2e_rwa_reject.sh`, Farcaster Frame, demo video, Slither clean | **Done** |
 
-### Week 2 sub-tasks
+### Build sub-tasks (reference)
 
 1. Foundry workspace setup (`forge init`, OpenZeppelin + EAS + forge-std deps, `foundry.toml`, `remappings.txt`, `slither.config.json`).
 2. `MockUSDC.sol` — minimal ERC-20 with public mint for demos.
@@ -25,7 +28,7 @@
 10. E2E smoke script (`scripts/e2e_rwa_flow.sh`): buyer → escrow.deposit → attester decide → EAS.attest → escrow.release → BaseScan-style assertion.
 11. Tag `v1.0.0-alpha.2`.
 
-Deliverables at end of Week 3:
+Deliverables at hackathon submit:
 
 - Public BaseScan link to deployed `SettlementEscrow.sol` (verified).
 - Public EAS Scan link to `SettlementApproval` schema and at least 3

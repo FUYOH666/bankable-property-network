@@ -4,8 +4,9 @@ Settlement Attestation Layer for RWA. Web3-native on-chain compliance bridge
 for cross-border stablecoin real-world-asset settlements. Hackathon target:
 SEA Blockchain Week 2026.
 
-**Branch:** `v1/attestation-layer` (forked from `main@v0.5.13`).
-**Version:** `1.0.0-alpha.1` (Week 1 in progress).
+**Branch:** `main` (merged from `v1/attestation-layer` at `v1.0.0`).
+**Version:** `1.0.0` (SEA Blockchain Week 2026 hackathon submission).
+**Build time:** ~4 hours AI-assisted development after pivot from v0.5 prototype.
 **Predecessor:** Bankable Property Network (archive/v0.5/).
 
 ## Stack

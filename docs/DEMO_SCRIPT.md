@@ -72,7 +72,7 @@ and Q&A bridges.
 
 > We started this project as B2B bank-grade settlement infrastructure for
 > Thailand property — Closing Passport, payee verification, multi-channel
-> consult. Six weeks in, we ran a brutal market check.
+> consult. Before SEABW 2026 we ran a brutal market check.
 >
 > What we saw: bank compliance dashboards are a saturated category. The
 > growth in 2026 is RWA stablecoin settlements. And our strongest
@@ -80,8 +80,9 @@ and Q&A bridges.
 > attestation — were already pointing toward an on-chain layer.
 >
 > So we pivoted. From B2B SaaS to a web3-native attestation primitive.
-> Same engineering foundation, sharper edge, broader market. The previous
-> generation is preserved in `archive/v0.5/` for transparency.
+> Same engineering foundation, sharper edge, broader market. The AttestRWA
+> stack shipped in roughly four hours of AI-assisted development. The
+> previous generation is preserved in `archive/v0.5/` for transparency.
 
 **Technical depth (50 s)**
 
@@ -151,6 +152,8 @@ Cut at 60 seconds exactly. No music. Voiceover only.
 
 ## Logistics
 
+- **Printable 1-pager:** [`PITCH_CHEATSHEET.md`](PITCH_CHEATSHEET.md) —
+  stage speech, elevator pitch, Q&A, links (phone or A4).
 - Live demo screen: `/` on the deployed Vercel URL (Week 3). For
   hackathon-day, ensure a hard-wired ethernet connection where possible.
 - Backup video: ready on local laptop + cloud (Google Drive, Vercel asset).

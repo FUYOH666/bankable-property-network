@@ -36,8 +36,8 @@ preserve commit history):
 See [`../../README.md`](../../README.md) — section "Why we pivoted (Pivot story)".
 
 In short: the original Bankable Property Network was bank-grade B2B
-settlement infrastructure for Thailand property. Six weeks in, we ran a
-brutal market check and identified that:
+settlement infrastructure for Thailand property. Before SEABW 2026 we ran a
+market check and identified that:
 
 1. Bank compliance dashboards are a saturated category (SAS, Quantexa, Actimize).
 2. Real growth in 2026 is in RWA stablecoin settlements — and that market

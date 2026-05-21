@@ -112,10 +112,11 @@ growing up.**
 
 This product is the v1.0 of a project that began as Bankable Property
 Network — a B2B bank settlement infrastructure focused on Thailand
-property. The pivot was deliberate: same engineering foundation (payee
+property. The pivot was deliberate and shipped for SEABW 2026 in roughly
+four hours of AI-assisted development: same engineering foundation (payee
 verification, capital classification, RAG evidence engine, FastAPI +
-Next.js base, 64 pytest baseline), sharper edge (on-chain), broader
-market (RWA, not just Thailand property).
+Next.js base), sharper edge (on-chain), broader market (RWA, not just
+Thailand property).
 
 The previous generation lives in [`archive/v0.5/`](../archive/v0.5/) for
 auditability — see `archive/v0.5/README.md` for what was archived and why.

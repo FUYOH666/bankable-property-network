@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `docs/PITCH_CHEATSHEET.md` — one-page printable stage / hallway pitch.
+- `docs/PROJECT_DESCRIPTION.md` — hackathon registration / project summary.
+- `docs/pitch-deck.html` + `docs/AttestRWA-PITCH-DECK.pdf` — 7-slide pitch deck.
+
+### Changed
+- Timeline copy: removed fictional "six weeks" / Week 0–3 planning labels
+  from README, web UI, demo script, and project description; hackathon
+  build credited at ~4 hours AI-assisted development.
+
 ## v1.0.0-polish.2 — 2026-05-21 (branch `v1/attestation-layer`)
 
 **Hackathon mode: self-contained demo, no faucet dependency.** When the

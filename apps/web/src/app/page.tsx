@@ -17,12 +17,12 @@ export default function Page() {
         <div className="card">
           <h2>Status</h2>
           <p>
-            Week 1 of the pivot is in progress. The live settlement screen with wallet connect, programmable escrow on
-            Base Sepolia, and live EAS attestations ships in Week 2.
+            Hackathon-ready. Live settlement demo with wallet connect, programmable escrow on Base Sepolia (dev fork),
+            EAS attestations, approve + reject E2E scripts, and an 85-second recorded walkthrough.
           </p>
           <p>
-            Engineering foundation, pivot story, and detailed plan are in the
-            repository: <a href="https://github.com/FUYOH666/bankable-property-network">FUYOH666/bankable-property-network</a> (branch <code>v1/attestation-layer</code>).
+            Repository: <a href="https://github.com/FUYOH666/bankable-property-network">FUYOH666/bankable-property-network</a>
+            (public, branch <code>main</code>).
           </p>
         </div>
 
@@ -66,10 +66,10 @@ export default function Page() {
         <div className="card">
           <h2>Pivot story</h2>
           <p>
-            We started this project as B2B bank-grade settlement infrastructure for Thailand property. Six weeks in, we
-            ran a brutal market check and saw that RWA&apos;s real bottleneck in 2026 is not tokenization — it&apos;s
-            compliance. So we pivoted from B2B SaaS to a web3-native attestation primitive. Same engineering foundation,
-            sharper edge, broader market.
+            We started as B2B bank-grade settlement infrastructure for Thailand property. Before SEABW 2026 we ran a
+            market check and saw that RWA&apos;s real bottleneck in 2026 is not tokenization — it&apos;s compliance. We
+            pivoted to a web3-native attestation primitive and shipped the full stack in roughly four hours of
+            AI-assisted development.
           </p>
           <p>
             See <code>archive/v0.5/</code> for the previous generation. We kept what mattered (payee verification,
