@@ -1,94 +1,81 @@
-import { BuyerConsultationPanel } from "./buyer-consultation-panel";
-import { ClosingPassportPanel } from "./closing-passport-panel";
-import { DeveloperKnowledgeHub } from "./developer-knowledge-hub";
-import { GuidedDealSimulation } from "./guided-deal-simulation";
-import { PitchScreen } from "./pitch-screen";
-import { PostClosingYieldPlan } from "./post-closing-yield-plan";
-import { ScenarioSimulator } from "./scenario-simulator";
-import { SupplierContrastDemo } from "./supplier-contrast-demo";
-
-const demoSteps = [
-  "Supplier Contrast compares off-platform prelaunch (permit gaps) vs tier-1 on-network developer feed.",
-  "Developer Knowledge Hub compares agent payee instruction against developer ERP feed.",
-  "Property Shield flags payee mismatch, urgency, and missing buyer protection.",
-  "Capital Bankability Map classifies funds as green, amber, or red.",
-  "Route Comparison rejects direct deposit and recommends bankable escrow.",
-  "Bank Counter-Offer routes settlement through verified escrow.",
-  "Compliance approves the controlled route.",
-  "Closing Passport hashes the evidence pack without exposing sensitive data.",
-  "Post-Closing Yield Plan previews long-term asset operations on bank rails.",
-];
-
 export default function Page() {
   return (
     <main>
       <section className="hero">
-        <div className="eyebrow">Synthetic demo data · SEABW · Bankable Property Network</div>
-        <h1>Bankable Property Network</h1>
+        <div className="eyebrow">v1.0.0 · Settlement Attestation Layer for RWA</div>
+        <h1>AttestRWA</h1>
         <p>
-          Bank-grade money infrastructure for Thailand property. Bankable Property OS gives banks and regulated
-          structures control over settlement flow — buyer protection is the social bonus when infrastructure works.
+          On-chain compliance bridge that turns bank verification rules into machine-verifiable attestations, so
+          stablecoin payments for real-world assets release only when the deal is bank-grade.
+        </p>
+        <p>
+          <a className="button-link" href="/rwa-settlement-live">Open the live settlement demo</a>
         </p>
       </section>
 
-      <PitchScreen />
-
-      <section className="grid">
-        <SupplierContrastDemo />
-      </section>
-
-      <section className="grid">
-        <DeveloperKnowledgeHub />
-      </section>
-
       <section className="grid">
         <div className="card">
-          <h2>Anchor Case</h2>
+          <h2>Status</h2>
           <p>
-            Illustration of infrastructure failure: money is about to move through an unverified path on a 12M THB
-            Bangkok condo. Commission-driven intermediary, payee mismatch, deposit pressure — not a buyer competence
-            story.
+            Week 1 of the pivot is in progress. The live settlement screen with wallet connect, programmable escrow on
+            Base Sepolia, and live EAS attestations ships in Week 2.
           </p>
-          <span className="status red">Unverified settlement path</span>
+          <p>
+            Engineering foundation, pivot story, and detailed plan are in the
+            repository: <a href="https://github.com/FUYOH666/bankable-property-network">FUYOH666/bankable-property-network</a> (branch <code>v1/attestation-layer</code>).
+          </p>
         </div>
+
         <div className="card">
-          <h2>Primary Customer</h2>
-          <p>
-            Banking anchor and regulated money-serving structures. This is not a listing marketplace — it is the
-            operating layer that captures flow, controls escrow, and preserves audit-ready evidence.
-          </p>
+          <h2>On-chain artefacts (dev fork of Base Sepolia)</h2>
+          <ul>
+            <li>
+              <strong>SettlementEscrow.sol:</strong>
+              <code>0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8</code>
+            </li>
+            <li>
+              <strong>MockUSDC.sol:</strong>
+              <code>0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4</code>
+            </li>
+            <li>
+              <strong>EAS Schema UID:</strong>
+              <code>0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96</code>
+            </li>
+            <li>
+              <strong>EAS contract:</strong>
+              <code>0x4200000000000000000000000000000000000021</code>
+            </li>
+            <li>
+              <strong>Attester EOA (dev):</strong>
+              <code>0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</code>
+            </li>
+          </ul>
         </div>
+
         <div className="card">
-          <h2>Web3 Use</h2>
+          <h2>What we&apos;re building</h2>
+          <ul>
+            <li>Programmable settlement escrow on Base Sepolia (Foundry, fuzz tests, slither-clean).</li>
+            <li>On-chain EAS attestations as the compliance primitive.</li>
+            <li>Off-chain attester service with RAG-assisted evidence review (FastAPI + Qdrant + BGE).</li>
+            <li>Single-screen wallet-connect demo flow.</li>
+            <li>Farcaster Frame for viral distribution; Dune dashboard for public on-chain metrics.</li>
+          </ul>
+        </div>
+
+        <div className="card">
+          <h2>Pivot story</h2>
           <p>
-            We do not tokenize the property. We tokenize the evidence of a verified settlement process through a
-            metadata-only attestation.
+            We started this project as B2B bank-grade settlement infrastructure for Thailand property. Six weeks in, we
+            ran a brutal market check and saw that RWA&apos;s real bottleneck in 2026 is not tokenization — it&apos;s
+            compliance. So we pivoted from B2B SaaS to a web3-native attestation primitive. Same engineering foundation,
+            sharper edge, broader market.
+          </p>
+          <p>
+            See <code>archive/v0.5/</code> for the previous generation. We kept what mattered (payee verification,
+            capital classification, RAG, FastAPI+Next.js base, 64 pytest baseline), killed what didn&apos;t.
           </p>
         </div>
-      </section>
-
-      <section className="grid">
-        <ClosingPassportPanel />
-      </section>
-
-      <section className="grid">
-        <PostClosingYieldPlan />
-      </section>
-
-      <GuidedDealSimulation />
-
-      <ScenarioSimulator />
-
-      <section className="grid">
-        <BuyerConsultationPanel />
-      </section>
-
-      <section className="grid steps">
-        {demoSteps.map((step) => (
-          <div className="card step" key={step}>
-            <h3>{step}</h3>
-          </div>
-        ))}
       </section>
     </main>
   );

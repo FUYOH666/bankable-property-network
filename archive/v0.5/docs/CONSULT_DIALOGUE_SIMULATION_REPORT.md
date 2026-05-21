@@ -1,6 +1,6 @@
 # Consult Dialogue Simulation Report
 
-> Generated: 2026-05-20 10:30 UTC · synthetic demo data · API v0.5.13
+> Generated: 2026-05-20 11:34 UTC · synthetic demo data · API v0.5.13
 
 Multi-turn buyer consultation scripts. Source: `scripts/run_consult_dialogue_matrix.py --offline`.
 

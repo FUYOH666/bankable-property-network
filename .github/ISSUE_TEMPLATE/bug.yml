@@ -1,0 +1,73 @@
+name: Bug report
+description: Something is broken in AttestRWA (contracts, attester, web, scripts, docs).
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill in as much as you can.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the codebase is affected?
+      options:
+        - Contracts (SettlementEscrow / MockUSDC / EAS integration)
+        - Backend (FastAPI attester / RAG / DSL)
+        - Frontend (Next.js / wallet UI / Farcaster Frame)
+        - Scripts (dev-chain / deploy / e2e)
+        - Docs
+        - CI / GitHub config
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: A clear description of the bug, including the failing command or endpoint.
+      placeholder: e.g. `forge test` fails on `test_release_reverts_on_expired_attestation`
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen
+      placeholder: e.g. Test should pass with `vm.warp` set above 1.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Commands, env, and inputs. Paste output where useful.
+      placeholder: |
+        1. `./scripts/dev-chain.sh`
+        2. `./scripts/deploy-contracts.sh`
+        3. `./scripts/e2e_rwa_flow.sh`
+        4. Observe: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Foundry version, Python version, Node version.
+      placeholder: |
+        macOS 14.5 / Foundry 1.7.1 / Python 3.12.4 / Node 22.6
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / on-chain artefacts
+      description: |
+        Paste short logs, tx hashes, attestation UIDs. Do NOT include private keys.
+      render: shell

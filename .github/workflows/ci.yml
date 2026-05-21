@@ -1,0 +1,117 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "v1/**"]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: Foundry (contracts)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Show forge version
+        run: forge --version
+
+      - name: Install Solidity dependencies
+        run: |
+          forge install foundry-rs/forge-std --no-git --shallow
+          forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-git --shallow
+          forge install ethereum-attestation-service/eas-contracts --no-git --shallow
+
+      - name: Build
+        run: forge build --sizes
+
+      - name: Test (gas report)
+        run: forge test --gas-report
+
+  backend:
+    name: Backend (FastAPI pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Python toolchain
+        run: uv python install 3.12
+
+      - name: Sync dependencies
+        run: uv sync --frozen
+
+      - name: Run pytest
+        run: uv run pytest -q
+
+  slither:
+    name: Slither (static analysis)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install Solidity dependencies
+        working-directory: contracts
+        run: |
+          forge install foundry-rs/forge-std --no-git --shallow
+          forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-git --shallow
+          forge install ethereum-attestation-service/eas-contracts --no-git --shallow
+
+      - name: Forge build (so crytic-compile finds artefacts)
+        working-directory: contracts
+        run: forge build --sizes
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install slither-analyzer
+        run: pip install slither-analyzer
+
+      - name: Install solc 0.8.26
+        run: |
+          pip install solc-select
+          solc-select install 0.8.26
+          solc-select use 0.8.26
+
+      - name: Run Slither
+        working-directory: contracts
+        run: |
+          slither src/SettlementEscrow.sol \
+            --solc-remaps "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ @eas/=lib/eas-contracts/contracts/ forge-std/=lib/forge-std/src/" \
+            --filter-paths "lib/" \
+            --exclude-low \
+            --exclude-informational \
+            --fail-medium

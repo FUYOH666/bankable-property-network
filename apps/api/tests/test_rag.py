@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services.rag import collect_consult_kb_documents, collect_synthetic_documents
+from app.services.rag import collect_synthetic_documents
 
 
 client = TestClient(app)
@@ -39,9 +39,7 @@ def test_rag_ingest_dry_run_counts_synthetic_documents() -> None:
     body = response.json()
     assert body["mode"] == "dry_run"
     assert body["document_count"] >= 10
-    assert body["consult_kb_document_count"] == len(collect_consult_kb_documents())
-    assert body["consult_kb_document_count"] >= 5
-    assert body["document_count"] == body["synthetic_document_count"] + body["consult_kb_document_count"]
+    assert body["document_count"] == body["synthetic_document_count"]
 
 
 def test_scenario_rag_run_fallback_returns_traceable_evidence() -> None:

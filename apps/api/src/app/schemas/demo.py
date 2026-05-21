@@ -53,27 +53,6 @@ class ClosingPassportResponse(BaseModel):
     infrastructure_context: InfrastructureContext
 
 
-class SimulationStep(BaseModel):
-    id: str
-    actor: str
-    title: str
-    detail: str
-
-
-class EvidencePreview(BaseModel):
-    included: list[str]
-    excluded_sensitive_fields: list[str]
-    privacy_note: str
-
-
-class GuidedSimulationResponse(BaseModel):
-    steps: list[SimulationStep]
-    synthetic_artifacts: dict[str, Any]
-    evidence_preview: EvidencePreview
-    closing_passport: ClosingPassportPayload
-    infrastructure_context: InfrastructureContext
-
-
 class KnowledgeGap(BaseModel):
     agent_claimed_payee: str
     developer_authorized_payee: str
@@ -102,19 +81,6 @@ class DeveloperKnowledgeHubResponse(BaseModel):
     prior_art: dict[str, str]
     downstream_link: str
     pitch_line: str
-
-
-class PostClosingYieldPlanResponse(BaseModel):
-    data_classification: str
-    module: str
-    vision_note: str
-    case_id: str
-    property_summary: dict[str, Any]
-    after_purchase: dict[str, Any]
-    legal_rental_mode: dict[str, Any]
-    verified_managers: list[dict[str, Any]]
-    recommended_manager: dict[str, Any]
-    bank_value: dict[str, str]
 
 
 class SupplierContrastTrack(BaseModel):

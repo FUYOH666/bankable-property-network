@@ -1,133 +1,112 @@
-# AGENTS.md — Bankable Property Network
+# AGENTS.md — AttestRWA
 
-Bank-grade money infrastructure for Thailand property. **Primary customer:** banking anchor and regulated structures. Buyer protection is a social bonus.
+Settlement Attestation Layer for RWA. Web3-native on-chain compliance bridge
+for cross-border stablecoin real-world-asset settlements. Hackathon target:
+SEA Blockchain Week 2026.
 
-- **Network:** Bankable Property Network
-- **OS:** Bankable Property OS (FastAPI + Next.js demo)
-- **First module:** Closing Passport (evidence before funds move)
-- **Upstream layer:** Verified Developer Knowledge Layer (developer ERP feed as SSOT)
-- **Agent layers (roadmap):** Buyer Consultation Agent + Settlement Branch Explorer — LangGraph.js
-- **Thesis:** [`docs/MONEY_INFRASTRUCTURE_THESIS.md`](docs/MONEY_INFRASTRUCTURE_THESIS.md)
-- **AI / hackathon audit:** [`docs/AI_AUDIT_INDEX.md`](docs/AI_AUDIT_INDEX.md) — start here for automated project review
-- **Registration:** [`docs/PROJECT_DESCRIPTION.md`](docs/PROJECT_DESCRIPTION.md)
-- **Session continuity:** [`docs/HANDOFF.md`](docs/HANDOFF.md) — version, verification, context budget
-
-**Current version: 0.5.13**
+**Branch:** `v1/attestation-layer` (forked from `main@v0.5.13`).
+**Version:** `1.0.0-alpha.1` (Week 1 in progress).
+**Predecessor:** Bankable Property Network (archive/v0.5/).
 
 ## Stack
 
-| Layer | Path | Tooling |
-|-------|------|---------|
-| API | `apps/api` | Python 3.12+, **uv**, FastAPI |
-| Web | `apps/web` | **pnpm**, Next.js 16 |
-| Buyer agent (roadmap) | `apps/buyer-agent` | **pnpm**, LangGraph.js, Zod, LM Studio |
-| Synthetic data | `data/synthetic/` | JSON + markdown corpus for demo/RAG |
-| Consult KB | `data/consult_knowledge/realestate-demo/` | Landmark Sukhumvit Tower (Bangkok) — consult-only RAG filter |
-| Dialogue fixtures | `data/consult_dialogues/dialogue_matrix.yaml` | 17-turn offline regression |
-| Vector DB | `infra/docker-compose.yml` | Qdrant (optional for live RAG) |
-
-Local AI contour for agent LLM + RAG: [`docs/LOCAL_AI_CONTOUR.md`](docs/LOCAL_AI_CONTOUR.md). Agent architecture: [`docs/NONLINEAR_DECISION_GRAPH.md`](docs/NONLINEAR_DECISION_GRAPH.md), [`docs/BUYER_CONSULTATION_AGENT.md`](docs/BUYER_CONSULTATION_AGENT.md).
+| Layer | Tool |
+|-------|------|
+| Contracts | Solidity 0.8.x, **Foundry** (forge / cast / anvil / chisel 1.7.1) |
+| L2 | **Base Sepolia** (chainId 84532); local fork via Anvil for development |
+| Attestations | **EAS** at canonical `0x4200…0021` (SchemaRegistry `0x4200…0020`) |
+| Stablecoin | Mock USDC ERC-20 (own deployment, week 2) |
+| Wallet | wagmi + viem + RainbowKit (week 2) |
+| API | Python 3.12+, **uv**, FastAPI |
+| Frontend | Next.js, TypeScript, pnpm |
+| RAG (compliance evidence) | Qdrant + BGE-M3 embedding + BGE reranker |
+| LLM (explainability only) | LM Studio (Qwen-class), schema-bound, never autonomous |
+| Analytics | Dune Analytics public dashboard (week 3) |
+| Distribution | Farcaster Frame (week 3) |
 
 ## Commands
 
 ```bash
+# Dev chain (Anvil fork of Base Sepolia + EAS schema registered)
+./scripts/dev-chain.sh        # one-shot setup, idempotent
+./scripts/stop-dev-chain.sh   # tear down
+
 # API
 cd apps/api && uv sync && uv run pytest -q
 cd apps/api && uv run uvicorn app.main:app --app-dir src --host 0.0.0.0 --port 8080
-
-# Consult regression (offline, deterministic)
-cd apps/api && CONSULT_RETRIEVAL_MODE=keyword uv run python ../../scripts/run_consult_dialogue_matrix.py --offline
 
 # Web
 cd apps/web && pnpm install && pnpm dev
 cd apps/web && pnpm run build
 
-# Docker booth stack
-./scripts/docker-up.sh && ./scripts/docker-smoke.sh
+# Contracts (Foundry workspace, Week 2 fills these in)
+cd contracts && forge build && forge test -vvv --gas-report
+cd contracts && slither .   # zero high/medium target
 
 # Health
 curl http://localhost:8080/healthz
-curl http://localhost:8080/api/consult/contour/healthz
 ```
 
-## Demo flow (UI order)
+## Demo flow (target Week 2)
 
-1. Pitch Screen
-2. Supplier Contrast (off-platform prelaunch vs tier-1 on-network)
-3. Developer Knowledge Hub (upstream SSOT vs agent payee)
-4. Anchor case cards
-5. Settlement Flow panel — Property Shield, Capital Map, Route Comparison, Bank Counter-Offer, Closing Passport
-6. Post-Closing Yield Plan
-7. Guided Deal Simulation
-8. Scenario Simulator (8 scenarios incl. developer supply paths)
-9. Buyer Consultation — web panel, API, WhatsApp ([`docs/DISTRIBUTION_CHANNELS.md`](docs/DISTRIBUTION_CHANNELS.md), [`docs/WHATSAPP_CONSULT_DEMO.md`](docs/WHATSAPP_CONSULT_DEMO.md))
-10. Footer demo steps recap
+Single screen (`/`), wallet connect, 90-second arc:
 
-**WhatsApp jury arc (4 turns):** greeting → price/villa → **USDT «как покупать?» pitch** → payee guardrail.
+1. Buyer wallet sends Mock USDC to `SettlementEscrow` on Base Sepolia (dev fork in week 1, real testnet in week 3).
+2. Attester service detects pending settlement, runs Property Shield + RAG compliance, signs EAS attestation.
+3. Branch A (HAPPY) — attestation valid → escrow releases USDC to verified payee.
+4. Branch B (REJECT) — payee mismatch / red capital / expired attestation → escrow refunds buyer.
 
-Presenter checklist: [`docs/DEMO_CHECKLIST.md`](docs/DEMO_CHECKLIST.md)
+## Key endpoints (current — Week 1)
 
-## Key API endpoints
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/healthz` | Liveness |
+| GET | `/api/demo/closing-passport` | Legacy settlement flow data (basis for attester logic) |
+| GET | `/api/demo/developer-knowledge-hub` | Upstream developer feed (drives payee verification) |
+| GET | `/api/demo/supplier-contrast` | Off-platform vs tier-1 supplier data |
+| GET | `/api/demo/evidence-pack` | Evidence pack export (privacy-safe) |
+| GET | `/api/scenarios` | Scenario list (to be replaced with 3 RWA scenarios in week 1.4) |
+| GET | `/api/scenarios/{id}/run` | Run scenario |
+| GET | `/api/scenarios/{id}/rag-run` | Run scenario with RAG trace |
+| GET | `/api/rag/health` | RAG / compliance evidence engine health |
+| POST | `/api/rag/ingest` | Ingest synthetic corpus into Qdrant |
 
-| Path | Purpose |
-|------|---------|
-| `GET /healthz` | Liveness |
-| `GET /api/demo/closing-passport` | Full settlement flow payload |
-| `GET /api/demo/developer-knowledge-hub` | Developer feed vs agent gap |
-| `GET /api/demo/supplier-contrast` | Off-platform vs tier-1 developer supply contrast |
-| `GET /api/demo/guided-simulation` | Step-by-step workflow |
-| `GET /api/demo/evidence-pack` | Exportable JSON evidence |
-| `GET /api/demo/post-closing-yield-plan` | Yield OS vision |
-| `GET /api/scenarios` | Eight synthetic scenarios |
-| `GET /api/scenarios/{id}/rag-run` | Scenario + RAG trace |
-| `POST /api/rag/ingest` | Re-index corpus (after KB/policy edits) |
-| `POST /api/consult/message` | Buyer consultation (multi-channel) |
-| `GET /api/consult/contour/healthz` | Local AI contour readiness |
-
-Distribution channels: [`docs/DISTRIBUTION_CHANNELS.md`](docs/DISTRIBUTION_CHANNELS.md)
-
-## Key code paths
-
-- API entry: `apps/api/src/app/main.py`
-- **Buyer consult (live):** `apps/api/src/app/services/buyer_consultation.py` — intent, RAG, `_purchase_pitch_reply`, `_is_prompt_leak`
-- Consult retrieval: `apps/api/src/app/services/consult_retrieval.py`, `rag.py`
-- Paths/data: `apps/api/src/app/paths.py`, `services/data_loader.py`
-- Closing demo builder: `services/closing_passport_demo.py`
-- Web fetch hook: `apps/web/src/lib/use-demo-fetch.ts`
-- Settlement UI: `apps/web/src/app/closing-passport-panel.tsx`
+Week 2 adds: `POST /attest/settlement`, `GET /attest/{dealId}`, `GET /attest/healthz`.
 
 ## Conventions
 
-- Python: **uv only** (no pip), `logging` not `print`, `/healthz` required
-- Data loading: `load_json()` from `data_loader` — do not duplicate `Path(__file__).parents[N]`
-- Web: `useDemoFetch()` + `getApiBaseUrl()` for all demo API calls
-- User-facing changes: update `CHANGELOG.md`, bump `config.py` + `.env.example`, sync **AGENTS.md + HANDOFF.md + README version badge**
+- Python: **uv only** (no pip), `logging` not `print`, `/healthz` required.
+- Use `app.paths.synthetic_root()` + `app.services.data_loader.load_json`; never duplicate `Path(__file__).parents[N]`.
+- Secrets in `.env`; dev attester key in `.env.example` is the well-known Anvil test key (public, never use on mainnet).
+- After substantive changes: run `uv run pytest -q` (apps/api), `pnpm run build` (apps/web), and `forge test` (contracts, when present).
 
 ## Do not
 
-- Commit secrets, `.env`, or TailScale/internal IPs
-- Edit files under `.cursor/plans/`
-- Use `pip install` without uv
-- Re-introduce Karon/TEST DEVELOPER 1 consult corpus (removed 0.5.11)
-- Index full Thai legal PDFs as authoritative advice (use synthetic pitch + public links + disclaimer)
-- Claim live WhatsApp for booth demo (personal linked device — not production Meta Business API)
-- Claim Telegram/Line/email/TTS as **live** (roadmap adapters only — see DISTRIBUTION_CHANNELS)
+- Commit secrets, real attester private keys, TailScale IPs, or internal hostnames.
+- Edit files under `.cursor/plans/`.
+- Use `pip install` without `uv`.
+- Reintroduce buyer-consult / WhatsApp / Yield panels (they live in `archive/v0.5/` as historical context).
+- Claim production WhatsApp / Telegram / Line / Meta Business API integration.
+- Claim mainnet deploy or real RWA-platform partnerships (testnet only for hackathon).
 
-## Continue development
+## Pivot context (read before large changes)
 
-Read **[`docs/HANDOFF.md`](docs/HANDOFF.md)** and **[`docs/PROJECT_AUDIT_REPORT.md`](docs/PROJECT_AUDIT_REPORT.md)** for version, verification, and backlog.
-
-Rebuild from zero or onboard parallel team: **[`docs/REPRODUCTION_GUIDE.md`](docs/REPRODUCTION_GUIDE.md)**.
-
-Status summary: [`docs/FINAL_STATUS_AND_NEXT_ACTIONS.md`](docs/FINAL_STATUS_AND_NEXT_ACTIONS.md) (may lag HANDOFF — prefer HANDOFF for version).
+- Read [`docs/DEV_SIMULATION.md`](docs/DEV_SIMULATION.md) — how to spin up the local dev chain.
+- Read [`docs/ATTESTATION_SCHEMA.md`](docs/ATTESTATION_SCHEMA.md) — EAS schema and integration model.
+- Read [`docs/PRODUCT_THESIS.md`](docs/PRODUCT_THESIS.md) — problem, solution, primary customers.
+- Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — layers, data flow, design decisions.
+- Read [`docs/ROADMAP.md`](docs/ROADMAP.md) — Week 0 → Week 3 → 2027.
+- Read [`archive/v0.5/docs/WEEK0_BOOTSTRAP.md`](archive/v0.5/docs/WEEK0_BOOTSTRAP.md) — what was locked in Week 0 (historical).
+- Read `.cursor/plans/godmode-pivot-attestation-layer_*.plan.md` — full plan.
 
 ## New chat starter
 
 ```text
-Project: Bankable Property Network (hackathon MVP).
-Read AGENTS.md and docs/HANDOFF.md first.
-Stack: apps/api (FastAPI, uv), apps/web (Next.js, pnpm), data/synthetic/.
-Current version: 0.5.13. Do not edit .cursor/plans/.
-Consult inventory: Landmark Sukhumvit Tower (Bangkok).
-Continue from "Next Work" section in HANDOFF.
+Project: AttestRWA — Settlement Attestation Layer for RWA. Branch
+v1/attestation-layer from main@v0.5.13. Read AGENTS.md, docs/PRODUCT_
+THESIS.md, docs/ARCHITECTURE.md, docs/DEV_SIMULATION.md, docs/
+ATTESTATION_SCHEMA.md first.
+Network: Base Sepolia (chainId 84532), dev via Anvil fork on :8545.
+Stack: contracts (Foundry, Week 2), apps/api (FastAPI, uv), apps/web
+(Next.js, pnpm). Legacy v0.5 in archive/v0.5/. Do not edit .cursor/plans/.
 ```

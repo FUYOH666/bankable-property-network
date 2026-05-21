@@ -8,24 +8,31 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.demo_case import ANCHOR_CASE
 from app.logging_config import configure_logging
-from app.schemas.consult import ConsultHealthResponse, ConsultMessageRequest, ConsultMessageResponse
+from app.schemas.attester import (
+    AttestRequest,
+    AttestResponse,
+    AttestationLookupResponse,
+    AttesterHealthResponse,
+)
 from app.schemas.demo import (
     ClosingPassportResponse,
     DeveloperKnowledgeHubResponse,
-    GuidedSimulationResponse,
-    PostClosingYieldPlanResponse,
     SupplierContrastResponse,
 )
-from app.services.consult_contour import contour_health
-from app.services.consult_knowledge import knowledge_health
-from app.services.buyer_consultation import consult_health, handle_consult_message
+from app.services.attester_service import (
+    AttesterError,
+    DealRequest,
+    attest_for_deal,
+    attester_health,
+    decide_for_deal,
+)
 from app.services.closing_passport_demo import build_closing_passport_demo
 from app.services.data_loader import DataLoadError
 from app.services.developer_knowledge import build_developer_knowledge_hub
+from app.services.eas_client import EASClient
 from app.services.rag import ingest_synthetic_documents, rag_health, run_scenario_with_rag
 from app.services.scenarios import get_scenario_detail, list_scenarios, run_scenario
 from app.services.supplier_contrast_demo import build_supplier_contrast_demo
-from app.services.yield_plan import build_post_closing_yield_plan
 
 
 logger = logging.getLogger(__name__)
@@ -52,13 +59,18 @@ def _data_unavailable_http() -> HTTPException:
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(settings.bankable_log_level)
-    logger.info("Bankable Property OS API starting version=%s", settings.bankable_api_version)
+    logger.info("AttestRWA API starting version=%s", settings.bankable_api_version)
     yield
 
 
 app = FastAPI(
-    title="Bankable Property OS API",
-    description="Closing Passport demo API for bankable Thai property settlement.",
+    title="AttestRWA API",
+    description=(
+        "AttestRWA — Settlement Attestation Layer for RWA. Off-chain attester service that "
+        "applies bank-grade verification rules (Property Shield, capital classification, "
+        "RAG-assisted evidence) and signs on-chain EAS attestations consumed by the "
+        "programmable settlement escrow on Base Sepolia."
+    ),
     version=get_settings().bankable_api_version,
     lifespan=lifespan,
 )
@@ -73,7 +85,7 @@ app.add_middleware(
 
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
-    return {"status": "ok", "service": "bankable-property-os-api"}
+    return {"status": "ok", "service": "attestrwa-api"}
 
 
 @app.get("/api/demo/closing-passport", response_model=ClosingPassportResponse)
@@ -84,92 +96,6 @@ def get_closing_passport_demo() -> dict[str, object]:
     except DataLoadError as exc:
         logger.error("Closing passport demo failed: %s", exc)
         raise _data_unavailable_http() from exc
-
-
-@app.get("/api/demo/guided-simulation", response_model=GuidedSimulationResponse)
-def get_guided_simulation_demo() -> dict[str, object]:
-    logger.info("Demo endpoint hit path=/api/demo/guided-simulation")
-    try:
-        demo = build_closing_passport_demo()
-    except DataLoadError as exc:
-        logger.error("Guided simulation demo failed: %s", exc)
-        raise _data_unavailable_http() from exc
-
-    closing_passport = demo["closing_passport"]
-
-    synthetic_artifacts = {
-        "agent_message": {
-            "data_classification": "synthetic_demo_data",
-            "from": "Property agent",
-            "message": "Please send the booking deposit today to secure the unit. The receiving company is SRL Holding 2026 Co., Ltd.",
-        },
-        "payment_instruction": {
-            "data_classification": "synthetic_demo_data",
-            "expected_payee": ANCHOR_CASE["expected_payee"],
-            "instruction_payee": ANCHOR_CASE["payment_instruction_payee"],
-            "deadline_hours": ANCHOR_CASE["deposit_deadline_hours"],
-        },
-        "compliance_memo": {
-            "data_classification": "synthetic_demo_data",
-            "decision": "approve_bankable_escrow_route",
-            "memo": "Direct deposit should pause until payee authority is verified. Escrow route may proceed with corrected instructions.",
-        },
-        "escrow_draft": {
-            "data_classification": "synthetic_demo_data",
-            "release_condition": "Release only after verified payee authority and compliance approval.",
-        },
-    }
-
-    steps = [
-        {
-            "id": "buyer_pressure",
-            "actor": "buyer",
-            "title": "Buyer receives urgent deposit pressure",
-            "detail": synthetic_artifacts["agent_message"]["message"],
-        },
-        {
-            "id": "document_review",
-            "actor": "system",
-            "title": "Payment instruction reviewed",
-            "detail": "Expected developer and instructed payee do not match.",
-        },
-        {
-            "id": "risk_flags",
-            "actor": "property_shield",
-            "title": "Property Shield flags the case",
-            "detail": ", ".join(demo["property_shield"]["flags"]),
-        },
-        {
-            "id": "bank_counter_offer",
-            "actor": "bank",
-            "title": "Bank proposes safer settlement",
-            "detail": demo["bank_counter_offer"]["offer"],
-        },
-        {
-            "id": "compliance_approval",
-            "actor": "compliance",
-            "title": "Compliance approves controlled route",
-            "detail": synthetic_artifacts["compliance_memo"]["memo"],
-        },
-        {
-            "id": "closing_passport",
-            "actor": "system",
-            "title": "Closing Passport generated",
-            "detail": f"Evidence hash {closing_passport['evidence_pack_hash']} created without sensitive data on-chain.",
-        },
-    ]
-
-    return {
-        "steps": steps,
-        "synthetic_artifacts": synthetic_artifacts,
-        "evidence_preview": {
-            "included": ["case_id", "risk_report", "capital_map", "recommended_route", "approver_role"],
-            "excluded_sensitive_fields": ["passport_number", "email", "phone", "address", "full_name"],
-            "privacy_note": "Evidence preview uses extracted facts and status metadata only.",
-        },
-        "closing_passport": closing_passport,
-        "infrastructure_context": demo["infrastructure_context"],
-    }
 
 
 @app.get("/api/demo/developer-knowledge-hub", response_model=DeveloperKnowledgeHubResponse)
@@ -189,16 +115,6 @@ def get_supplier_contrast_demo() -> dict[str, object]:
         return build_supplier_contrast_demo()
     except (DataLoadError, ValueError) as exc:
         logger.error("Supplier contrast demo failed: %s", exc)
-        raise _data_unavailable_http() from exc
-
-
-@app.get("/api/demo/post-closing-yield-plan", response_model=PostClosingYieldPlanResponse)
-def get_post_closing_yield_plan_demo() -> dict[str, object]:
-    logger.info("Demo endpoint hit path=/api/demo/post-closing-yield-plan")
-    try:
-        return build_post_closing_yield_plan(ANCHOR_CASE)
-    except DataLoadError as exc:
-        logger.error("Post-closing yield plan failed: %s", exc)
         raise _data_unavailable_http() from exc
 
 
@@ -279,26 +195,161 @@ def post_rag_ingest(dry_run: bool = False) -> dict[str, object]:
     return ingest_synthetic_documents(dry_run=dry_run)
 
 
-@app.get("/api/consult/contour/healthz")
-def get_consult_contour_healthz() -> dict[str, object]:
-    return contour_health()
+# ---- Attester endpoints -----------------------------------------------------
 
 
-@app.get("/api/consult/knowledge/healthz")
-def get_consult_knowledge_healthz() -> dict[str, object]:
-    return knowledge_health()
+def _explorer_url(chain_id: int | None, uid: str) -> str | None:
+    if chain_id == 84532:
+        return f"https://base-sepolia.easscan.org/attestation/view/{uid}"
+    if chain_id == 8453:
+        return f"https://base.easscan.org/attestation/view/{uid}"
+    return None
 
 
-@app.get("/api/consult/healthz", response_model=ConsultHealthResponse)
-def get_consult_healthz() -> dict[str, object]:
-    return consult_health()
-
-
-@app.post("/api/consult/message", response_model=ConsultMessageResponse)
-def post_consult_message(body: ConsultMessageRequest) -> dict[str, object]:
+@app.post("/attest/settlement", response_model=AttestResponse)
+def post_attest_settlement(body: AttestRequest) -> dict[str, object]:
+    """Decide on a settlement and (optionally) submit an EAS attestation."""
     logger.info(
-        "Consultation message session=%s channel=%s",
-        body.session_id,
-        body.channel,
+        "Attestation request deal=%s buyer=%s amount=%s developer=%s",
+        body.deal_id,
+        body.buyer_wallet,
+        body.amount_base_units,
+        body.developer_id,
     )
-    return handle_consult_message(body.session_id, body.message, body.channel)
+    request = DealRequest(
+        deal_id=bytes.fromhex(body.deal_id[2:]),
+        buyer_wallet=body.buyer_wallet,
+        payee_wallet=body.payee_wallet,
+        token_address=body.token_address,
+        amount_base_units=body.amount_base_units,
+        developer_id=body.developer_id,
+        jurisdiction=body.jurisdiction,
+        buyer_kyc_tier=body.buyer_kyc_tier,
+        expires_in_seconds=body.expires_in_seconds,
+    )
+    try:
+        decision = decide_for_deal(request)
+    except AttesterError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    chain_id: int | None = None
+    attestation_uid: str | None = None
+    tx_hash: str | None = None
+    block_number: int | None = None
+    gas_used: int | None = None
+
+    submit_on_chain = (
+        get_settings().attestrwa_submit_on_chain
+        if hasattr(get_settings(), "attestrwa_submit_on_chain")
+        else True
+    )
+
+    if submit_on_chain:
+        try:
+            client = EASClient()
+            chain_id = client.config.chain_id
+            result = attest_for_deal(request, decision, client=client)
+            attestation_uid = result.uid
+            tx_hash = result.tx_hash
+            block_number = result.block_number
+            gas_used = result.gas_used
+        except Exception as exc:
+            logger.warning("on-chain attest failed: %s — returning decision only", exc)
+
+    explanation = (
+        f"Decision {decision.decision} — payee_verified={decision.payee_verified} "
+        f"capital_class={decision.capital_class}"
+    )
+    if decision.reasons:
+        explanation += " :: " + "; ".join(decision.reasons)
+
+    return {
+        "decision": decision.decision,
+        "deal_id": body.deal_id,
+        "capital_class": decision.capital_class,
+        "payee_verified": decision.payee_verified,
+        "reasons": decision.reasons,
+        "rule_results": decision.rule_results,
+        "taint": {
+            "wallet": decision.taint.wallet,
+            "capital_class": decision.taint.capital_class,
+            "signals": decision.taint.signals,
+            "explanation": decision.taint.explanation,
+        }
+        if decision.taint is not None
+        else None,
+        "evidence_hash": "0x" + decision.evidence_hash.hex(),
+        "expires_at": decision.expires_at,
+        "attestation_uid": attestation_uid,
+        "tx_hash": tx_hash,
+        "block_number": block_number,
+        "gas_used": gas_used,
+        "chain_id": chain_id,
+        "eas_explorer_url": _explorer_url(chain_id, attestation_uid) if attestation_uid else None,
+        "explanation": explanation,
+    }
+
+
+@app.get("/attest/healthz", response_model=AttesterHealthResponse)
+def get_attest_healthz() -> dict[str, object]:
+    return attester_health()
+
+
+@app.get("/attest/{deal_id}", response_model=AttestationLookupResponse)
+def get_attestation_for_deal(deal_id: str) -> dict[str, object]:
+    """Placeholder attestation lookup — Week 2.3 wires it to an indexer."""
+    return {
+        "deal_id": deal_id,
+        "attestation": None,
+        "note": "Per-deal attestation lookup is wired via the EAS indexer in Week 3.",
+    }
+
+
+# ---- Farcaster Frame --------------------------------------------------------
+
+from fastapi import Request  # noqa: E402  (top-level import is fine but localised here)
+from fastapi.responses import HTMLResponse, Response  # noqa: E402
+
+from app.services.farcaster_frame import frame_html, status_svg  # noqa: E402
+
+
+def _base_url(request: Request) -> str:
+    return f"{request.url.scheme}://{request.url.netloc}"
+
+
+def _basescan_link_for_deal(deal_id: str | None) -> str:
+    if not deal_id:
+        return "https://base-sepolia.easscan.org/"
+    return f"https://base-sepolia.easscan.org/attestation/view/{deal_id}"
+
+
+@app.get("/api/frame/attest", response_class=HTMLResponse)
+def frame_attest(request: Request, deal_id: str | None = None, decision: str | None = None) -> HTMLResponse:
+    """Farcaster Frame entry point — renders status meta tags + SVG image."""
+    base = _base_url(request)
+    img_q = f"?deal_id={deal_id}" if deal_id else ""
+    if decision:
+        sep = "&" if img_q else "?"
+        img_q += f"{sep}decision={decision}"
+    image_url = f"{base}/api/frame/image{img_q}"
+    post_url = f"{base}/api/frame/attest"
+    return HTMLResponse(
+        content=frame_html(
+            image_url=image_url,
+            post_url=post_url,
+            button_2_link=_basescan_link_for_deal(deal_id),
+        )
+    )
+
+
+@app.post("/api/frame/attest", response_class=HTMLResponse)
+def frame_attest_post(request: Request) -> HTMLResponse:
+    """Button-click handler — for the hackathon demo we just bounce back to GET."""
+    return frame_attest(request)
+
+
+@app.get("/api/frame/image")
+def frame_image(deal_id: str | None = None, decision: str | None = None) -> Response:
+    """Serve the dynamically rendered Frame status SVG."""
+    svg = status_svg(decision=decision, deal_id=deal_id)
+    return Response(content=svg, media_type="image/svg+xml")

@@ -13,3 +13,16 @@ credentials.*
 *.plan.md
 whatsapp_session/
 services/whatsapp-bridge/*.db
+
+# AttestRWA v1 dev chain
+.dev-chain.state
+.env.dev
+
+# Foundry
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+contracts/lib/
+
+# Anvil / dev chain logs
+/tmp/attestrwa-anvil.*

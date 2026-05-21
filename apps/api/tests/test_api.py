@@ -63,38 +63,6 @@ def test_closing_passport_includes_infrastructure_context() -> None:
     assert context["primary_customer"] == "banking_anchor"
 
 
-def test_guided_simulation_includes_infrastructure_context() -> None:
-    response = client.get("/api/demo/guided-simulation")
-
-    assert response.status_code == 200
-    context = response.json()["infrastructure_context"]
-    assert context["narrative_role"] == "demo_illustration_not_buyer_blame"
-
-
-def test_guided_simulation_endpoint_returns_real_user_workflow() -> None:
-    response = client.get("/api/demo/guided-simulation")
-
-    assert response.status_code == 200
-    body = response.json()
-    assert [step["id"] for step in body["steps"]] == [
-        "buyer_pressure",
-        "document_review",
-        "risk_flags",
-        "bank_counter_offer",
-        "compliance_approval",
-        "closing_passport",
-    ]
-    assert body["synthetic_artifacts"]["agent_message"]["data_classification"] == "synthetic_demo_data"
-    assert body["evidence_preview"]["excluded_sensitive_fields"] == [
-        "passport_number",
-        "email",
-        "phone",
-        "address",
-        "full_name",
-    ]
-    assert body["closing_passport"]["evidence_pack_hash"].startswith("0x")
-
-
 def test_evidence_pack_endpoint_returns_exportable_privacy_safe_json() -> None:
     response = client.get("/api/demo/evidence-pack")
 
@@ -160,21 +128,6 @@ def test_scenario_runner_returns_rag_trace_and_privacy_safe_evidence() -> None:
     assert body["evidence_preview"]["excluded_sensitive_fields"] == ["passport_number", "email", "phone", "address", "full_name"]
     assert "SHOULD-NOT-LEAK" not in str(body)
     assert "bank_statement_raw" not in str(body)
-
-
-def test_post_closing_yield_plan_returns_vision_extension() -> None:
-    response = client.get("/api/demo/post-closing-yield-plan")
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["module"] == "post_closing_yield_plan"
-    assert body["case_id"] == "case-anchor-deposit-mismatch"
-    assert body["after_purchase"]["recommended_rental_model"] == "12-month expat lease"
-    assert "4." in body["after_purchase"]["estimated_net_yield"]
-    assert body["legal_rental_mode"]["short_term_under_30_days"]["status"] == "high_legal_risk"
-    assert len(body["verified_managers"]) == 3
-    assert body["recommended_manager"]["id"] == "mgr-riverside-partner"
-    assert "sold" in body["bank_value"]["pitch_line"]
 
 
 def test_developer_knowledge_hub_detects_payee_mismatch() -> None:

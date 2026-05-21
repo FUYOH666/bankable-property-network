@@ -1,195 +1,223 @@
-# Bankable Property Network
+# AttestRWA
 
-[![Version](https://img.shields.io/badge/version-0.5.13-blue)](CHANGELOG.md)
+> **Settlement Attestation Layer for RWA** — on-chain compliance bridge that
+> turns bank verification rules into machine-verifiable attestations, so
+> stablecoin payments for real-world assets release only when the deal is
+> bank-grade.
+
+[![CI](https://github.com/FUYOH666/bankable-property-network/actions/workflows/ci.yml/badge.svg?branch=v1%2Fattestation-layer)](https://github.com/FUYOH666/bankable-property-network/actions/workflows/ci.yml)
+[![Foundry tests](https://img.shields.io/badge/forge%20test-33%2F33-success)](contracts/test)
+[![pytest](https://img.shields.io/badge/pytest-62%2F62-success)](apps/api/tests)
+[![Slither](https://img.shields.io/badge/slither-0%20findings-success)](docs/SECURITY.md)
+[![Solidity](https://img.shields.io/badge/solidity-0.8.26-blue)](contracts/foundry.toml)
+[![Foundry](https://img.shields.io/badge/foundry-1.7.1-orange)](https://book.getfoundry.sh/)
+[![Network](https://img.shields.io/badge/network-Base%20Sepolia-blue)](https://sepolia.basescan.org/)
+[![EAS Schema](https://img.shields.io/badge/EAS%20schema-0x1f64ec96%E2%80%A6-7c3aed)](docs/ATTESTATION_SCHEMA.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
-[![Stack](https://img.shields.io/badge/stack-FastAPI%20%2B%20Next.js-000)](apps/api)
+[![Hackathon](https://img.shields.io/badge/hackathon-SEA%20Blockchain%20Week%202026-purple)](https://www.seablockchainweek.org/hackathon)
 
-Bank-grade money infrastructure for Thailand property.
+**Author:** [Aleksandr Mordvinov](https://github.com/FUYOH666) ·
+**Repository:** [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network) (rename to `attestrwa` post-pivot) ·
+**Demo:** _to be set when v1.0.0 deploys_
 
-**Author:** [Aleksandr Mordvinov](https://github.com/FUYOH666) · **Repository:** [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network) · **Demo:** [scanovich.ai/seablockchainweek](https://scanovich.ai/seablockchainweek/) _(hackathon vitrine)_
+---
 
-## Pitch
+## Hook (one sentence)
 
-Thailand's property market runs on developer-paid commissions with no professional entry barrier. Intermediaries are not verified for skills, local law, FET requirements, or payee authority. Money often moves off bankable rails while the Kingdom brand promise expects institutional-grade settlement.
+> RWA's bottleneck in 2026 is not tokenization — it's compliance.
+> We don't compete with Centrifuge or RealT; we're the layer they plug into.
 
-Bankable Property Network is the infrastructure layer that closes that gap — **for banks and regulated structures first**, for national market quality second. Buyer protection is a social bonus, not the product mission.
+## What you see when you open the demo (90 seconds)
 
-`Bankable Property OS` is the operating layer. `Closing Passport` is the first MVP module: it verifies a property purchase context before money moves, including property and developer risk, payment instructions, buyer capital bankability, settlement route, compliance approval, and metadata-only evidence attestation.
+1. **Frame** (10 s): "RWA settlements grew 8x in 2026. Banks still can't participate."
+2. **Buyer wallet** (15 s) sends 500K Mock USDC to `SettlementEscrow` on Base Sepolia.
+3. **Attester** (FastAPI, 20 s) detects pending settlement, reads developer
+   feed, runs Property Shield + RAG-assisted evidence, signs an EAS
+   `SettlementApproval` attestation.
+4. **Branch A (HAPPY)** — attestation valid → escrow releases USDC to verified
+   payee → on-chain Closing Passport hash visible on BaseScan.
+   **Branch B (REJECT)** — payee mismatch (`SRL Holding 2026` vs
+   `Siam Riverside Living`) → attestation rejected → escrow refunds buyer →
+   audit log on-chain.
+5. **Story close** (15 s): "One attestation schema. Any RWA. Any bank.
+   Stablecoins meet compliance — without trusting either side."
 
-The strategic extension is **Bankable Property & Yield OS**: after closing, verified rental operations, legal rental mode guidance, and bank rental income accounts turn a one-time purchase into a long-term asset relationship.
+## What's on-chain
 
-SCB can be the first banking anchor in the pitch, but the network can expand to Bangkok Bank, Kasikorn, Krungsri, UOB, HSBC, Dubai banks, Singapore banks, and other settlement participants.
+### Dev simulation (Anvil fork of Base Sepolia — port 8545, chain 84532)
 
-See `docs/MONEY_INFRASTRUCTURE_THESIS.md` for the full money infrastructure thesis.
+Spin up the full stack in one command: `./scripts/dev-chain.sh`. See
+[`docs/DEV_SIMULATION.md`](DEV_SIMULATION.md).
 
-**Agent / new chat:** read [`AGENTS.md`](AGENTS.md), [`docs/HANDOFF.md`](docs/HANDOFF.md), and [`docs/PROJECT_AUDIT_REPORT.md`](docs/PROJECT_AUDIT_REPORT.md) for full project state.
+| Artefact | Address / UID |
+|----------|---------------|
+| `SettlementApproval` EAS Schema UID | `0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96` |
+| EAS contract (canonical) | `0x4200000000000000000000000000000000000021` |
+| SchemaRegistry (canonical) | `0x4200000000000000000000000000000000000020` |
+| Attester EOA (dev) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Anvil acc 0) |
+| `SettlementEscrow.sol` | `0x54D4962847bf85AB71a1Fc984510dc12D3feA1D8` |
+| `MockUSDC.sol` | `0xeba5CEc9257045Df0B44eA784F9a7Fa07DeeF6d4` |
 
-**Hackathon registration:** copy-paste from [`docs/PROJECT_DESCRIPTION.md`](docs/PROJECT_DESCRIPTION.md).
+### Distribution channels (live on the dev stack)
 
-**AI / automated project audit:** start with [`docs/AI_AUDIT_INDEX.md`](docs/AI_AUDIT_INDEX.md).
+| Channel | Where |
+|---------|-------|
+| Farcaster Frame | `GET /api/frame/attest?deal_id=…&decision=…` returns Frame HTML + inline SVG image; `POST` is the button handler. Local: <http://localhost:8080/api/frame/attest?decision=approve>. |
+| Dune Analytics queries | [`docs/DUNE_QUERIES.md`](docs/DUNE_QUERIES.md) — copy-paste into Dune once contracts are public. |
+| E2E happy demo | `./scripts/e2e_rwa_flow.sh` — buyer deposits, attester signs EAS attestation, escrow releases to verified payee. |
+| E2E reject demo | `./scripts/e2e_rwa_reject.sh` — buyer instructs impostor payee, attester signs reject, escrow refuses release, buyer refunds. |
 
-## Hackathon Demo
+### Real Base Sepolia (Week 3 — optional for public hackathon submission)
 
-Anchor case **illustrates infrastructure failure** when money is about to move through an unverified path: a 12M THB Bangkok condo, Dubai bank funds and USDT, deposit pressure, payment instructions pointing to a legal entity that differs from the expected developer.
+| Artefact | Status |
+|----------|--------|
+| Schema UID | Same as dev (deterministic) — register on real Base Sepolia in 60 s with `cast send`, see `docs/ATTESTATION_SCHEMA.md` § 2. |
+| Attester EOA (real, public address) | Generated via `cast wallet new`, funded via the Alchemy Base Sepolia faucet. |
+| BaseScan deploy link | Created when `./scripts/deploy-contracts.sh` runs with `DEV_RPC_URL=https://sepolia.base.org`. |
+| EAS Scan schema link | <https://base-sepolia.easscan.org/schema/view/0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96> (resolves once registered on the real testnet). |
+| Dune dashboard | Created from `docs/DUNE_QUERIES.md` queries once a public-testnet attestation exists. |
 
-The demo shows:
-
-1. Pitch Screen explains the problem, solution, scenario outcomes, evidence layer, bank value, and roadmap.
-2. **Supplier Contrast** — off-platform prelaunch (Shadow Bay) vs tier-1 on-network (Bangkok Landmark Group).
-3. Developer Knowledge Hub compares agent payee instruction against developer ERP feed (upstream SSOT).
-4. Settlement Flow panel: Property Shield, Capital Bankability Map, Route Comparison, Bank Counter-Offer, Closing Passport (live API).
-5. Post-Closing Yield Plan shows Bankable Property & Yield OS vision.
-6. Guided Deal Simulation walks buyer → bank → compliance → passport.
-7. Scenario Simulator runs eight synthetic capital/property/agent/supply scenarios with RAG trace.
-8. **Buyer Consultation** — multi-channel API (`channel` param), WhatsApp live, web panel; Landmark Sukhumvit consult KB; USDT/cash purchase pitch with prompt-leak guard; Qdrant + BGE + LM Studio contour. See [`docs/DISTRIBUTION_CHANNELS.md`](docs/DISTRIBUTION_CHANNELS.md), [`docs/WHATSAPP_CONSULT_DEMO.md`](docs/WHATSAPP_CONSULT_DEMO.md), [`docs/CONSULT_DIALOGUE_SIMULATION_REPORT.md`](docs/CONSULT_DIALOGUE_SIMULATION_REPORT.md).
-
-Guided Simulation and Scenario Simulator extend the anchor case; steps 2–4 are the core money-infrastructure path.
-
-## Docker (API + WhatsApp — start here for booth)
-
-```bash
-chmod +x scripts/docker-up.sh scripts/docker-smoke.sh
-./scripts/docker-up.sh
-open http://localhost:8020/qr    # scan with WhatsApp → Linked devices
-./scripts/docker-smoke.sh        # API + consult + scenario smoke
-```
-
-Full guide: [`docs/DOCKER_QUICKSTART.md`](docs/DOCKER_QUICKSTART.md) · WhatsApp booth: [`docs/WHATSAPP_CONSULT_DEMO.md`](docs/WHATSAPP_CONSULT_DEMO.md).
-
-Full local AI contour: [`scripts/start-full-ai-contour.sh`](scripts/start-full-ai-contour.sh) · [`docs/LOCAL_AI_CONTOUR.md`](docs/LOCAL_AI_CONTOUR.md).
-
-Consult dialogue regression (17/17 offline, 9 scripts):
-
-```bash
-cd apps/api && CONSULT_RETRIEVAL_MODE=keyword uv run python ../../scripts/run_consult_dialogue_matrix.py --offline
-```
-
-```bash
-uv run python scripts/run_scenario_matrix.py --api-url http://localhost:8080
-```
-
-## Network Layers
-
-- Verified Developer Knowledge Layer (upstream SSOT — inventory, payee, installments from developer ERP feed).
-- Verified Property Layer.
-- Verified Developer Layer (settlement identity and payee authority on rails).
-- Verified Agent Layer.
-- Buyer Capital Layer.
-- Settlement Routing Layer.
-- Escrow and Conditional Release.
-- Closing Passport.
-- Post-Purchase Financial Layer (Yield OS vision screen).
-
-## Marketplace Positioning
-
-Bankable Property Network is not another listing marketplace. Listing platforms help buyers discover property. Bankable Property Network gives **structures that serve money** the operating layer to verify whether funds should move, through which route, and under what evidence-backed settlement conditions.
-
-## Agent Architecture
-
-Nonlinear orchestration for bank settlement and buyer consultation — **LangGraph.js primary**. See [`docs/NONLINEAR_DECISION_GRAPH.md`](docs/NONLINEAR_DECISION_GRAPH.md), [`docs/BUYER_CONSULTATION_AGENT.md`](docs/BUYER_CONSULTATION_AGENT.md), [`docs/AGENT_STACK_EVALUATION.md`](docs/AGENT_STACK_EVALUATION.md).
-
-## Production Planning
-
-- `docs/MONEY_INFRASTRUCTURE_THESIS.md`: money OS thesis, brand gap, commission model, AI layer.
-- `docs/HANDOFF.md`: agent session continuity, verification log, next work.
-- `docs/REPRODUCTION_GUIDE.md`: rebuild from zero, phase order, expansion matrix per module.
-- `docs/DEVELOPER_KNOWLEDGE_LAYER.md`: verified developer feed as upstream SSOT, channel roadmap, Property Shield linkage.
-- `docs/AI_AUDIT_INDEX.md`: entry point for AI/hackathon project auditors (live vs roadmap, invariants).
-- `docs/PROJECT_DESCRIPTION.md`: hackathon registration copy (problem, solution, value, copy-paste blocks).
-- `docs/DEVELOPER_SUPPLY_DEMO.md`: off-platform prelaunch vs tier-1 on-network supplier contrast pitch.
-- `docs/PUBLISH_SEABLOCKCHAINWEEK.md`: handoff for scanovich.ai/seablockchainweek/ demo publish.
-- `docs/DEPLOY.md`: FastAPI Docker and Render deploy guide.
-- `docs/PRODUCTION_ROADMAP.md`: production-grade rollout from hackathon demo to 12-month platform.
-- `docs/SCENARIO_MATRIX.md`: SWIFT, USDT, cash/P2P, mixed capital, developer risk, agent risk, and supply demo scenarios.
-- `docs/SYNTHETIC_CORPUS.md`: synthetic projects, buyers, agents, banks, documents, and scenarios.
-- `docs/NEXT_IMPLEMENTATION_SPRINTS.md`: build sequence for scenario API, UI simulator, production narrative, and controlled AI/RAG pilot.
-- `docs/PITCH_SCRIPT.md`: 60-second and 3-minute pitch.
-- `docs/OBJECTION_HANDLING.md`: bank, government, legal, KYC, blockchain, marketplace objections.
-- `docs/DEMO_CHECKLIST.md`: startup commands and demo flow.
-- `docs/HACKATHON_RUNBOOK.md`: final runbook for launching and presenting the demo.
-- `docs/DEMO_REHEARSAL_REPORT.md`: automated checks and four scenario rehearsal outcomes.
-- `docs/REAL_RAG_DEMO.md`: Qdrant + local embedding/reranker demo flow.
-- `docs/LOCAL_AI_CONTOUR.md`: local demo stack runbook (Qdrant, BGE, LM Studio).
-- `docs/AI_SERVICE_TIERS.md`: demo vs enterprise AI tier matrix (vLLM, Qwen-class embeddings).
-- `docs/REAL_RAG_RUN_REPORT.md`: latest live RAG ingestion and scenario run evidence.
-- `docs/NONLINEAR_DECISION_GRAPH.md`: Settlement Branch Explorer / bank decision graph.
-- `docs/BUYER_CONSULTATION_AGENT.md`: nonlinear buyer consultation agent (LangGraph.js roadmap).
-- `docs/AGENT_STACK_EVALUATION.md`: agent framework filter; LangGraph.js primary.
-- `docs/DOCKER_QUICKSTART.md`: one-command Docker stack (API + WhatsApp + scenario smoke).
-- `docs/CONSULT_KNOWLEDGE_DEMO.md`: two-layer consult KB (project + bank), intent routing, ASR roadmap.
-- `docs/DISTRIBUTION_CHANNELS.md`: one consult brain, many channel adapters (WhatsApp live; Telegram, Line, email, voice roadmap).
-
-## Project Layout
+## Architecture (minimal)
 
 ```text
-apps/api        FastAPI backend for rules, evidence, and demo endpoint
-apps/web        Next.js demo UI
-data/synthetic  Synthetic property, developer, policy, and settlement docs
-data/consult_knowledge/realestate-demo/  Landmark Sukhumvit consult KB (RAG filter: consult_kb)
-docs            Demo script, architecture, roadmap, value model; HANDOFF.md for session continuity
-infra           Docker Compose (API, WhatsApp bridge, Qdrant)
-config          Source-controlled non-secret config
+Buyer wallet  --USDC-->  SettlementEscrow.sol  --reads-->  EAS Registry
+                              ^                                ^
+                              | release/refund                 | write attestation
+                              |                                |
+                              +--------- Attester (FastAPI) ---+
+                                              |
+                                              v
+                              Compliance Engine: Property Shield + RAG + Capital Map
+                                              |
+                                              v
+                              Developer Feed (synthetic SSOT)
 ```
 
-## Run The API
+Full diagram: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) _(to be written Week 1)_
+
+## Why we pivoted (Pivot story)
+
+We started this project as a B2B bank-grade settlement infrastructure for
+Thailand property — Closing Passport, payee verification, multi-channel
+buyer consult. Six weeks in (commit history visible at `main@v0.5.13`), we
+ran a brutal market check and saw that:
+
+1. Bank compliance dashboards are already a saturated category (SAS,
+   Quantexa, Actimize).
+2. Real growth in 2026 is in RWA stablecoin settlements — and that market
+   has no programmable compliance bridge.
+3. Our strongest primitives (payee mismatch detection, capital
+   classification, evidence attestation) were already pointing toward an
+   on-chain layer.
+
+So we pivoted from B2B SaaS to a web3-native attestation primitive:
+**Settlement Attestation Layer for RWA**. Same engineering foundation,
+sharper edge, broader market.
+
+The pivot is in this repo — see [`archive/v0.5/`](archive/v0.5/) for the
+previous generation. We kept what mattered (payee logic, capital
+classification, RAG, FastAPI/Next.js base, 64 pytest baseline), killed what
+didn't (buyer consult, WhatsApp bot, 8 panels, 45 docs).
+
+## Why this wins at SEA Blockchain Week 2026
+
+- **Most RWA projects** build tokenization (Centrifuge, Maple, RealT,
+  Polytrade) — we don't compete, we're the layer above. Full feature
+  comparison: [`docs/COMPARISON.md`](docs/COMPARISON.md).
+- **Most compliance projects** are KYC (Sumsub, Persona) — we're on-chain
+  attestation primitives, not identity.
+- **Most blockchain-property projects** tokenize titles — legal mess. We
+  attest settlement evidence, not ownership claims.
+
+**Pitch line:** "We don't tokenize property. We tokenize the fact that a
+bank verified the deal."
+
+## Social impact
+
+RWA platforms today let anyone tokenize anything. AttestRWA adds the
+missing verifier: developer authenticity, payee authority, capital
+cleanliness. Buyers no longer wire stablecoins to unverified payees.
+Regulators get audit-grade evidence. Markets get fewer rug pulls.
+This is RWA growing up.
+
+## Roadmap
+
+| When | What |
+|------|------|
+| **Week 0 (now)** | Branch, archive scaffold, EAS schema registered, draft narrative |
+| **Week 1** | Surgery: archive old modules, rebrand AttestRWA, slim docs to 8 files, synthetic data with wallet addresses, 3 RWA scenarios |
+| **Week 2** | Foundry contracts + fuzz tests + slither clean + deploy to Base Sepolia; attester service + EAS client + DSL + wallet taint; single-screen UI with wagmi/viem |
+| **Week 3** | Farcaster Frame, Dune dashboard, audit polish, 60s recorded video, README hero finalization, `v1.0.0` tag |
+| **Q3 2026** | First exchange integration — Binance Settlement / OKX RWA / Bybit RWA pilot |
+| **Q4 2026** | First bank attester pilot (Thailand or Singapore) — paid fee per attestation |
+| **2027** | Multi-jurisdiction ASEAN expansion, L2 mainnet, compliance DSL marketplace |
+
+## Tech stack
+
+| Layer | Choice |
+|-------|--------|
+| L2 | Base Sepolia (testnet, fork via Anvil for dev) → Base mainnet (production) |
+| Attestations | EAS — canonical at `0x4200000000000000000000000000000000000021` |
+| Stablecoin | Mock USDC ERC-20 (demo); USDC / USDT (production) |
+| Contracts | Solidity 0.8.26 + Foundry 1.7 (33/33 tests + fuzz; slither clean — 0 findings) |
+| Wallet | wagmi + viem + RainbowKit (UI scaffold; CLI e2e demo lives in `scripts/`) |
+| Backend | Python 3.12 + FastAPI + uv + web3.py 7 + eth-account + eth-abi |
+| Compliance evidence | Qdrant + BGE-M3 + reranker (RAG over synthetic policy corpus) |
+| LLM (explainability only, optional) | LM Studio (Qwen-class) — schema-bound, never auto-decides |
+| Frontend | Next.js + TypeScript + pnpm |
+| Analytics | Dune Analytics — public queries in `docs/DUNE_QUERIES.md` |
+| Distribution | Farcaster Frame at `/api/frame/attest` |
+
+## Quickstart — one command, ~2 minutes
 
 ```bash
-cd apps/api
-uv sync
-uv run pytest
-uv run uvicorn app.main:app --app-dir src --host 0.0.0.0 --port 8080
+# One-time installs
+curl -L https://foundry.paradigm.xyz | bash && source ~/.zshenv && foundryup
+curl -LsSf https://astral.sh/uv/install.sh | sh
+corepack enable && corepack prepare pnpm@latest --activate
+
+# Boot the entire stack: dev chain + contracts deployed + FastAPI + Next.js web
+./scripts/demo-mode.sh
 ```
 
-Health check:
+Output ends with a `DEMO READY` block listing all addresses + URLs. Then:
 
 ```bash
-curl http://localhost:8080/healthz
+# Two end-to-end smokes (each ~15 s) — happy path and reject path
+./scripts/e2e_rwa_flow.sh
+./scripts/e2e_rwa_reject.sh
+
+# Cinematic UI: open http://localhost:3000/rwa-settlement-live
+# Farcaster Frame preview: open http://localhost:8080/api/frame/attest?decision=approve
+
+# Stop everything
+./scripts/stop-demo-mode.sh
 ```
 
-Demo endpoint:
+The full hackathon recording walkthrough (terminal-only **and** UI+wallet
+paths) is in [`docs/HACKATHON_RECORDING_GUIDE.md`](docs/HACKATHON_RECORDING_GUIDE.md).
 
-```bash
-curl http://localhost:8080/api/demo/closing-passport
-curl http://localhost:8080/api/demo/developer-knowledge-hub
-curl http://localhost:8080/api/demo/supplier-contrast
-curl http://localhost:8080/api/demo/guided-simulation
-curl http://localhost:8080/api/demo/evidence-pack
-curl http://localhost:8080/api/demo/post-closing-yield-plan
-```
+> **Why this works without a faucet:** the dev chain is an Anvil fork of
+> real Base Sepolia, so the EAS protocol bytecode at the canonical
+> address `0x4200…0021` is the production code (4,121 bytes), not a
+> mock. Every attestation in the demo runs through the real EAS
+> protocol — only the chain itself is local.
 
-Scenario and RAG endpoints:
+## What we don't build (explicit boundaries)
 
-```bash
-curl http://localhost:8080/api/scenarios
-curl http://localhost:8080/api/scenarios/usdt-mixed-route/rag-run
-curl -X POST "http://localhost:8080/api/rag/ingest?dry_run=true"
-curl -X POST http://localhost:8080/api/consult/message \
-  -H 'Content-Type: application/json' \
-  -d '{"session_id":"demo","message":"а как покупать? у меня usdt","channel":"whatsapp"}'
-```
+- We don't tokenize property (legal mess).
+- We don't issue our own stablecoin.
+- We don't do KYC (integrate Sumsub/Persona later).
+- We don't run our own L1/L2.
+- AI does not autonomously move money — it helps regulated structures
+  review evidence faster, traceably, in a controlled environment.
 
-## Run The Web Demo
+## License
 
-```bash
-cd apps/web
-pnpm install
-pnpm dev
-```
+Apache-2.0. Schema, attester address, and contracts are public.
 
-The web demo reads live Closing Passport data from `NEXT_PUBLIC_BANKABLE_API_URL`, defaulting to `http://localhost:8080`. Start the API first to show the real generated evidence hash in the UI.
+---
 
-## Run Qdrant
-
-```bash
-docker compose -f infra/docker-compose.yml up -d qdrant
-```
-
-## Environment
-
-Copy `.env.example` to `.env` and replace placeholder service URLs with your local or controlled-environment endpoints. Do not commit `.env`.
-
-## Privacy And Web3 Position
-
-We do not tokenize the property. We tokenize the evidence of a verified settlement process.
-
-The Closing Passport stores status metadata and an evidence pack hash. It must not store passports, contracts, bank statements, private wallet ownership data, or personal data on-chain.
+_This document is the **Week 0 draft** of the new root README. It replaces
+the v0.5 README in Week 1 (when the old README moves to
+`archive/v0.5/README.md`)._
