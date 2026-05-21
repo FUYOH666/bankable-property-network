@@ -53,8 +53,14 @@ Anvil fork of Base Sepolia. Recording-ready in two paths.
   (CI confirms on every push to `v1/attestation-layer`).
 
 ### Hackathon submission posture
-- Live demo: `./scripts/demo-mode.sh` on the laptop + 60 s recorded video
-  per `docs/HACKATHON_RECORDING_GUIDE.md` Path B.
+- **Live recorded demo (85 seconds, vertical, English captions):**
+  <https://youtube.com/shorts/BipB2qPzZz0>. Walks the full
+  `demo-mode.sh` boot, the happy-path E2E (attestation UID
+  `0x6d60c402…`), the reject-path E2E (attestation UID `0xf235c4eb…`),
+  the `cast code` proof of real EAS bytecode at `0x4200…0021`
+  (4,121 bytes), and the 8-commit pivot history with the `v1.0.0` tag.
+- Local demo: `./scripts/demo-mode.sh` reproduces every frame of the
+  recording on any laptop in ~35 s.
 - Real-testnet deploy (Phase 3): deferred until any Base Sepolia faucet
   cooperates. README + ATTESTATION_SCHEMA + ROADMAP all already explain
   this is a one-line env-var flip.

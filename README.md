@@ -18,7 +18,7 @@
 
 **Author:** [Aleksandr Mordvinov](https://github.com/FUYOH666) ·
 **Repository:** [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network) (rename to `attestrwa` post-pivot) ·
-**Demo:** _to be set when v1.0.0 deploys_
+**85-second demo:** [youtube.com/shorts/BipB2qPzZz0](https://youtube.com/shorts/BipB2qPzZz0) (subtitles toggle-able)
 
 ---
 

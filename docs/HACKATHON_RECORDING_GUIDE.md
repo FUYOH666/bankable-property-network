@@ -173,16 +173,16 @@ one take.
 
 ## Hand-off checklist before submission
 
-- [ ] `./scripts/demo-mode.sh` starts cleanly on your machine.
-- [ ] `./scripts/e2e_rwa_flow.sh` exits 0.
-- [ ] `./scripts/e2e_rwa_reject.sh` exits 0.
-- [ ] Recording uploaded as **unlisted** YouTube / Vimeo / Loom.
-- [ ] Final URL added to `README.md` hero (replace the
-  `_to be set when v1.0.0 deploys_` line).
-- [ ] PR #1 description updated with the live video link.
-- [ ] CHANGELOG entry mentions the recorded run.
-- [ ] No real private keys in the recording (your buyer account in
-  MetaMask is the public Anvil test key — that is fine).
+- [x] `./scripts/demo-mode.sh` starts cleanly on the recording machine.
+- [x] `./scripts/e2e_rwa_flow.sh` exits 0.
+- [x] `./scripts/e2e_rwa_reject.sh` exits 0.
+- [x] Recording uploaded: <https://youtube.com/shorts/BipB2qPzZz0>
+      (YouTube Shorts, vertical 1738×1942, 85 s, English captions
+      toggle-able from `docs/recording-subtitles.srt`).
+- [x] Video URL added to `README.md` hero.
+- [x] CHANGELOG entry mentions the recorded run + UIDs.
+- [x] No real private keys in the recording (Anvil default test
+      accounts only, public mnemonic, never use on mainnet).
 
 ## Known limitations to call out (transparency)
 

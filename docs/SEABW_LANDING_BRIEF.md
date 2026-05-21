@@ -94,9 +94,11 @@ Centred:
 - H1: `Settlement Attestation Layer for RWA`
 - Subhead (≤ 22 words): `On-chain compliance bridge. Stablecoin payments for real-world assets release only when the deal is bank-grade.`
 - Two primary CTAs side by side:
-  - Primary: **Watch 60-second demo** → links to the hosted unlisted
-    YouTube / Vimeo video URL (placeholder for now; insert when
-    available).
+  - Primary: **Watch 85-second demo** → links to
+    `https://youtube.com/shorts/BipB2qPzZz0` (YouTube Shorts, English
+    captions). The video walks `demo-mode.sh` boot + happy-path +
+    reject-path + `cast code` proof + git log; ready to embed via
+    YouTube's iframe.
   - Secondary: **Open the source** → links to `https://github.com/FUYOH666/bankable-property-network`.
 - A single line of monospace metadata under the CTAs:
   - `EAS schema · 0x1f64ec96…f33aff   Base Sepolia · chain 84532   License · Apache-2.0`
