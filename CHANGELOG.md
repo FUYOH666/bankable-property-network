@@ -3,14 +3,41 @@
 ## Unreleased
 
 ### Added
-- `docs/PITCH_CHEATSHEET.md` — one-page printable stage / hallway pitch.
-- `docs/PROJECT_DESCRIPTION.md` — hackathon registration / project summary.
-- `docs/pitch-deck.html` + `docs/AttestRWA-PITCH-DECK.pdf` — 7-slide pitch deck.
+- Life-flow readiness (May 2026):
+  `docs/FOR_INTEGRATORS.md`, `docs/INBOUND_PLAYBOOK.md`, `docs/LAYERED_TRUST.md`,
+  `docs/MULTI_ATTESTER.md`, `FUNDING.md`.
+- `scripts/deploy-public-testnet.sh`, `scripts/public-attestation-smoke.sh`,
+  `scripts/demo-composed-flow.sh`.
+- `examples/composed-eligibility-settlement/` — mock eligibility + settlement demo.
+- `apps/api/tests/test_policy_packs.py` — ASEAN policy pack vectors.
+- `TaintProvider` protocol + `ChainalysisStubProvider` in `wallet_taint.py`.
+- Extended `GET /attest/healthz` with `policy_file`, `repo_version`, `dev_chain_reachable`.
 
 ### Changed
+- `.env.example` rebranded to `ATTESTRWA_*` (legacy `BANKABLE_*` aliases in config).
+- `data/policies/asean-property-settlement-v1.yaml` — valid Compliance DSL (`rules[].require`).
+- README: integrator link, public testnet proof section.
+- URL hygiene: active docs use `attestrwa` repo name (not `bankable-property-network`).
+- Ecosystem research pack (May 2026 OSS strategy execution):
+  `docs/INTEGRATION_OPPORTUNITY_MATRIX.md`, `docs/ECOSYSTEM_RESEARCH.md` (42
+  repo cards), `docs/STANDARDS_ALIGNMENT.md`, `docs/COMPARISON_EVIDENCE.md`,
+  `docs/QUANTUM_LEAP_BETS.md`, `docs/OSS_OPERATING_PLAN_90DAY.md`,
+  `docs/PIVOT.md`, `docs/OUTREACH_TARGETS.md`,
+  `docs/rfc/0001-settlement-eligibility-composition.md`.
+- `examples/integrate-centrifuge-hook/README.md` — Centrifuge hook cookbook.
+- `data/policies/asean-property-settlement-v1.yaml` — first Compliance DSL
+  policy pack (ASEAN property vertical).
+- README pivot diagram + links to ecosystem docs.
+- `docs/PITCH_CHEATSHEET.md` — one-page printable stage / hallway pitch (prior unreleased).
+- `docs/PROJECT_DESCRIPTION.md` — hackathon registration / project summary (prior unreleased).
+- `docs/pitch-deck.html` + `docs/AttestRWA-PITCH-DECK.pdf` — 7-slide pitch deck (prior unreleased).
+
+### Changed
+- `docs/COMPARISON.md` — cross-link to empirical evidence doc.
+- GitHub repository renamed to [`FUYOH666/attestrwa`](https://github.com/FUYOH666/attestrwa);
+  topics updated (`settlement-attestation`, `attestrwa`, …).
 - Timeline copy: removed fictional "six weeks" / Week 0–3 planning labels
-  from README, web UI, demo script, and project description; hackathon
-  build credited at ~4 hours AI-assisted development.
+  from README, web UI, demo script, and project description (prior unreleased).
 
 ## v1.0.0-polish.2 — 2026-05-21 (branch `v1/attestation-layer`)
 

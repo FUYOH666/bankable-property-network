@@ -6,7 +6,7 @@
 |---|---|
 | **Project** | AttestRWA — Settlement Attestation Layer for RWA |
 | **Author** | Aleksandr Mordvinov · [github.com/FUYOH666](https://github.com/FUYOH666) |
-| **Repo** | [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network) → rename `attestrwa` before public flip |
+| **Repo** | [github.com/FUYOH666/attestrwa](https://github.com/FUYOH666/attestrwa) |
 | **Demo video** | [youtube.com/shorts/BipB2qPzZz0](https://youtube.com/shorts/BipB2qPzZz0) (85 s, English subtitles) |
 | **Hackathon** | [SEA Blockchain Week 2026](https://www.seablockchainweek.org/hackathon) |
 | **License** | Apache-2.0 · Base Sepolia · EAS `SettlementApproval` schema |
@@ -91,7 +91,7 @@
 
 ```
 Demo:     https://youtube.com/shorts/BipB2qPzZz0
-GitHub:   https://github.com/FUYOH666/bankable-property-network
+GitHub:   https://github.com/FUYOH666/attestrwa
 Schema:   docs/ATTESTATION_SCHEMA.md  (UID 0x1f64ec96…cc96)
 One-liner: RWA's bottleneck is compliance. We're the layer platforms plug into.
 Ask:      Design-partner bank or RWA platform for first integration pilot.

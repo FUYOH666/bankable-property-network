@@ -72,6 +72,32 @@ contract SettlementEscrowTest is Test {
         assertTrue(escrow.trustedAttesters(stranger));
     }
 
+    function test_release_happy_with_second_trusted_attester() public {
+        address attesterB = address(0xA77E57E3);
+
+        vm.prank(owner);
+        escrow.setAttester(attesterB, true);
+
+        bytes32 dealId = keccak256("deal-attester-b");
+        uint64 deadline = uint64(block.timestamp + ONE_DAY);
+        _doDeposit(dealId, deadline);
+
+        bytes32 attUid = _seedAttestation(
+            dealId,
+            attesterB,
+            payee,
+            address(usdc),
+            DEFAULT_AMOUNT,
+            0,
+            true,
+            deadline,
+            0
+        );
+
+        escrow.release(dealId, attUid);
+        assertEq(usdc.balanceOf(payee), DEFAULT_AMOUNT);
+    }
+
     // ---- deposit ----
 
     function test_deposit_happy_path() public {

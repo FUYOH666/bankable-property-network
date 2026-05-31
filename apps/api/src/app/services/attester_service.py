@@ -94,6 +94,11 @@ def _policy_path() -> Path:
     return synthetic_root() / _DEFAULT_POLICY_PATH
 
 
+def policy_file_display() -> str:
+    """Resolved policy path for health/readiness endpoints."""
+    return str(_policy_path())
+
+
 def load_policy_rules() -> list[Rule]:
     path = _policy_path()
     if not path.is_file():
@@ -220,13 +225,28 @@ def attest_for_deal(
 
 
 def attester_health() -> dict[str, Any]:
-    """Lightweight health: env config + EAS reachability."""
+    """Lightweight health: env config + EAS reachability + policy path."""
+    policy = policy_file_display()
+    try:
+        from importlib.metadata import version
+
+        repo_version = version("attestrwa-api")
+    except Exception:
+        repo_version = "unknown"
+
     try:
         client = EASClient()
     except Exception as exc:
         return {
             "status": "down",
             "service": "attestrwa-attester",
+            "repo_version": repo_version,
+            "policy_file": policy,
+            "dev_chain_reachable": False,
             "error": f"{type(exc).__name__}: {exc}",
         }
-    return client.health()
+    payload = client.health()
+    payload["repo_version"] = repo_version
+    payload["policy_file"] = policy
+    payload["dev_chain_reachable"] = payload.get("status") == "ok"
+    return payload

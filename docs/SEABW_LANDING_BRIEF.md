@@ -20,7 +20,7 @@ do not issue our own stablecoin. We are the missing primitive between
 RWA tokenization platforms (Centrifuge, Maple, RealT, Ondo, Polytrade)
 and regulated banks. Live demo runs on Base Sepolia (forked locally
 during the hackathon). License: Apache-2.0. Repository:
-`github.com/FUYOH666/bankable-property-network`.
+`github.com/FUYOH666/attestrwa`.
 
 ## Audience for this landing
 
@@ -99,7 +99,7 @@ Centred:
     captions). The video walks `demo-mode.sh` boot + happy-path +
     reject-path + `cast code` proof + git log; ready to embed via
     YouTube's iframe.
-  - Secondary: **Open the source** → links to `https://github.com/FUYOH666/bankable-property-network`.
+  - Secondary: **Open the source** → links to `https://github.com/FUYOH666/attestrwa`.
 - A single line of monospace metadata under the CTAs:
   - `EAS schema · 0x1f64ec96…f33aff   Base Sepolia · chain 84532   License · Apache-2.0`
 
@@ -144,7 +144,7 @@ verb:
 | Gas budget | **118,733** | `release()` max gas, under the 120k target. |
 
 Right under the grid, a one-line link: "Full audit posture →
-[`docs/SECURITY.md`](https://github.com/FUYOH666/bankable-property-network/blob/main/docs/SECURITY.md)".
+[`docs/SECURITY.md`](https://github.com/FUYOH666/attestrwa/blob/main/docs/SECURITY.md)".
 
 ### Block 5 — On-chain artefacts (the technical evidence)
 
@@ -265,7 +265,7 @@ Closing line, monospace, dim:
 | Roadmap dates | `docs/ROADMAP.md` |
 | Hero hook + outro lines | `docs/DEMO_SCRIPT.md` |
 | OG image SVG (use `decision=approve`) | `apps/api/src/app/services/farcaster_frame.py` § `status_svg(...)` |
-| Repo description | `https://api.github.com/repos/FUYOH666/bankable-property-network` (will be public from tomorrow) |
+| Repo description | `https://api.github.com/repos/FUYOH666/attestrwa` |
 
 ## Timeline
 

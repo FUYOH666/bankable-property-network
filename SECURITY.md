@@ -26,7 +26,7 @@ Please **do not** open a public GitHub issue for a security problem.
 Two preferred channels:
 
 1. Open a private GitHub Security Advisory:
-   <https://github.com/FUYOH666/bankable-property-network/security/advisories/new>.
+   <https://github.com/FUYOH666/attestrwa/security/advisories/new>.
    This is the fastest path and gives us a coordinated-disclosure surface.
 2. Email the project maintainer (see the GitHub profile at
    <https://github.com/FUYOH666>) with the subject line

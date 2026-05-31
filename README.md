@@ -5,9 +5,9 @@
 > stablecoin payments for real-world assets release only when the deal is
 > bank-grade.
 
-[![CI](https://github.com/FUYOH666/bankable-property-network/actions/workflows/ci.yml/badge.svg?branch=v1%2Fattestation-layer)](https://github.com/FUYOH666/bankable-property-network/actions/workflows/ci.yml)
-[![Foundry tests](https://img.shields.io/badge/forge%20test-33%2F33-success)](contracts/test)
-[![pytest](https://img.shields.io/badge/pytest-62%2F62-success)](apps/api/tests)
+[![CI](https://github.com/FUYOH666/attestrwa/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/FUYOH666/attestrwa/actions/workflows/ci.yml)
+[![Foundry tests](https://img.shields.io/badge/forge%20test-34%2F34-success)](contracts/test)
+[![pytest](https://img.shields.io/badge/pytest-69%2F69-success)](apps/api/tests)
 [![Slither](https://img.shields.io/badge/slither-0%20findings-success)](docs/SECURITY.md)
 [![Solidity](https://img.shields.io/badge/solidity-0.8.26-blue)](contracts/foundry.toml)
 [![Foundry](https://img.shields.io/badge/foundry-1.7.1-orange)](https://book.getfoundry.sh/)
@@ -17,8 +17,33 @@
 [![Hackathon](https://img.shields.io/badge/hackathon-SEA%20Blockchain%20Week%202026-purple)](https://www.seablockchainweek.org/hackathon)
 
 **Author:** [Aleksandr Mordvinov](https://github.com/FUYOH666) ·
-**Repository:** [github.com/FUYOH666/bankable-property-network](https://github.com/FUYOH666/bankable-property-network) (rename to `attestrwa` post-pivot) ·
+**Repository:** [github.com/FUYOH666/attestrwa](https://github.com/FUYOH666/attestrwa) ·
 **85-second demo:** [youtube.com/shorts/BipB2qPzZz0](https://youtube.com/shorts/BipB2qPzZz0) (subtitles toggle-able)
+
+---
+
+## Two generations, one repo
+
+```mermaid
+flowchart TB
+  subgraph v05 ["archive/v0.5 — Bankable Property Network"]
+    thailand["Thailand property B2B settlement"]
+    rag05["RAG + Closing Passport + payee mismatch"]
+  end
+
+  subgraph v1 ["main v1.0 — AttestRWA"]
+    eas["EAS SettlementApproval schema"]
+    escrow["SettlementEscrow.sol"]
+    attester["FastAPI attester + Compliance DSL"]
+  end
+
+  v05 -->|"pivot May 2026, SEABW"| v1
+  rag05 -->|"repurposed"| attester
+```
+
+Details: [`docs/PIVOT.md`](docs/PIVOT.md) · Ecosystem research:
+[`docs/ECOSYSTEM_RESEARCH.md`](docs/ECOSYSTEM_RESEARCH.md) · Integration RFC:
+[`docs/rfc/0001-settlement-eligibility-composition.md`](docs/rfc/0001-settlement-eligibility-composition.md)
 
 ---
 
@@ -26,6 +51,9 @@
 
 > RWA's bottleneck in 2026 is not tokenization — it's compliance.
 > We don't compete with Centrifuge or RealT; we're the layer they plug into.
+
+**Integrators:** start at [`docs/FOR_INTEGRATORS.md`](docs/FOR_INTEGRATORS.md) ·
+Funding: [`FUNDING.md`](FUNDING.md)
 
 ## What you see when you open the demo (90 seconds)
 
@@ -67,13 +95,31 @@ Spin up the full stack in one command: `./scripts/dev-chain.sh`. See
 | E2E happy demo | `./scripts/e2e_rwa_flow.sh` — buyer deposits, attester signs EAS attestation, escrow releases to verified payee. |
 | E2E reject demo | `./scripts/e2e_rwa_reject.sh` — buyer instructs impostor payee, attester signs reject, escrow refuses release, buyer refunds. |
 
-### Real Base Sepolia (Week 3 — optional for public hackathon submission)
+### Real Base Sepolia (optional — public proof)
+
+Deploy and smoke on real testnet (local Anvil demo unchanged):
+
+```bash
+# Configure PROD_* in .env, then:
+./scripts/deploy-public-testnet.sh
+./scripts/public-attestation-smoke.sh
+```
+
+| Artefact | Link |
+|----------|------|
+| Escrow | Run deploy script → BaseScan link printed |
+| Schema | [EAS Scan (deterministic UID)](https://base-sepolia.easscan.org/schema/view/0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96) |
+| Sample attestation UID | Run `./scripts/public-attestation-smoke.sh` — UID printed for README / Dune |
+
+See [`docs/DEV_SIMULATION.md`](docs/DEV_SIMULATION.md) for env flip between local fork and public testnet.
+
+### Real Base Sepolia (Week 3 — legacy table)
 
 | Artefact | Status |
 |----------|--------|
 | Schema UID | Same as dev (deterministic) — register on real Base Sepolia in 60 s with `cast send`, see `docs/ATTESTATION_SCHEMA.md` § 2. |
 | Attester EOA (real, public address) | Generated via `cast wallet new`, funded via the Alchemy Base Sepolia faucet. |
-| BaseScan deploy link | Created when `./scripts/deploy-contracts.sh` runs with `DEV_RPC_URL=https://sepolia.base.org`. |
+| BaseScan deploy link | Created when `./scripts/deploy-public-testnet.sh` runs with `PROD_*` in `.env`. |
 | EAS Scan schema link | <https://base-sepolia.easscan.org/schema/view/0x1f64ec96216b0381dc4443b7378c57485f2217656537e8ea36f0b23af047cc96> (resolves once registered on the real testnet). |
 | Dune dashboard | Created from `docs/DUNE_QUERIES.md` queries once a public-testnet attestation exists. |
 
@@ -140,6 +186,16 @@ missing verifier: developer authenticity, payee authority, capital
 cleanliness. Buyers no longer wire stablecoins to unverified payees.
 Regulators get audit-grade evidence. Markets get fewer rug pulls.
 This is RWA growing up.
+
+## Open source & ecosystem (May 2026)
+
+| Doc | Purpose |
+|-----|---------|
+| [`docs/ECOSYSTEM_RESEARCH.md`](docs/ECOSYSTEM_RESEARCH.md) | 42-repo GitHub sweep + integration candidates |
+| [`docs/QUANTUM_LEAP_BETS.md`](docs/QUANTUM_LEAP_BETS.md) | Top 5 non-linear leverage plays |
+| [`docs/OSS_OPERATING_PLAN_90DAY.md`](docs/OSS_OPERATING_PLAN_90DAY.md) | Community, metrics, funding map |
+| [`docs/OUTREACH_TARGETS.md`](docs/OUTREACH_TARGETS.md) | Shibui / Centrifuge / EAS outreach drafts |
+| [`examples/integrate-centrifuge-hook/`](examples/integrate-centrifuge-hook/README.md) | Transfer-hook integration cookbook |
 
 ## Roadmap
 

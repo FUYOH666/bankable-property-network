@@ -83,7 +83,7 @@ End-of-output prints a `DEMO READY` block with URLs. Wait for it.
 | 28–42| Happy 2 | Click **4 · Trigger attester**. After ~3 s, the right card flips green to APPROVE. Click **5 · Release**. | Decision card shows VERIFIED, payee balance jumps to 580 mUSDC. |
 | 42–62| Reject  | Pick the **reject** scenario. Click 1→2→3→4 again. Decision card flips red to REJECTED. Click **5 · Refund**. | Buyer balance restored. Activity log shows reason `payee_not_verified`. |
 | 62–82| Proof   | Switch to terminal. Run `cast code 0x4200000000000000000000000000000000000021 --rpc-url $DEV_RPC_URL \| wc -c` and `curl -s http://localhost:8080/attest/healthz`. | Numbers proving real EAS bytecode + healthy attester. |
-| 82–90| Outro   | Hold on the live screen with both attestation UIDs visible. | Voiceover: "Open source, Apache-2.0, github.com/FUYOH666/bankable-property-network". |
+| 82–90| Outro   | Hold on the live screen with both attestation UIDs visible. | Voiceover: "Open source, Apache-2.0, github.com/FUYOH666/attestrwa". |
 
 ### A.4 — Voiceover lines (read while recording)
 
@@ -157,7 +157,7 @@ Wait for `DEMO READY`. Now the chain is up and contracts are deployed.
 > address. No mocks."
 >
 > **55–60 s:** "Open source. Apache-2.0. github.com/FUYOH666/
-> bankable-property-network."
+> attestrwa."
 
 ### B.4 — One-liner backup (if anything misbehaves mid-recording)
 

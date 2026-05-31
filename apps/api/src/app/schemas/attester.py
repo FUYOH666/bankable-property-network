@@ -78,6 +78,9 @@ class AttesterHealthResponse(BaseModel):
 
     status: str
     service: str
+    repo_version: str | None = None
+    policy_file: str | None = None
+    dev_chain_reachable: bool | None = None
     rpc_url: str | None = None
     chain_id: int | None = None
     block_number: int | None = None

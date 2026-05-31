@@ -110,7 +110,7 @@ AI does **not** decide whether money moves. AI helps regulated structures review
 | Field | Value |
 |-------|--------|
 | Author | [Aleksandr Mordvinov](https://github.com/FUYOH666) |
-| Repository | https://github.com/FUYOH666/bankable-property-network |
+| Repository | https://github.com/FUYOH666/attestrwa |
 | Demo video | https://youtube.com/shorts/BipB2qPzZz0 |
 | Pitch deck (PDF) | [`AttestRWA-PITCH-DECK.pdf`](AttestRWA-PITCH-DECK.pdf) |
 | Landing page | https://scanovich.ai/seablockchainweek/ |
@@ -151,7 +151,7 @@ https://youtube.com/shorts/BipB2qPzZz0
 
 ### GitHub URL (registration form)
 
-https://github.com/FUYOH666/bankable-property-network
+https://github.com/FUYOH666/attestrwa
 
 ---
 

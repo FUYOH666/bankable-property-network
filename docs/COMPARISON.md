@@ -1,5 +1,7 @@
 # Comparison — AttestRWA vs the RWA stack
 
+> Empirical sources: [`COMPARISON_EVIDENCE.md`](COMPARISON_EVIDENCE.md) (May 2026).
+
 AttestRWA is positioned as a **compliance primitive** that other RWA
 projects plug into. We deliberately do not compete on tokenization,
 custody, KYC, or yield. This page makes that positioning concrete.

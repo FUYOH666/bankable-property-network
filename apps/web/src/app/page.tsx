@@ -21,7 +21,7 @@ export default function Page() {
             EAS attestations, approve + reject E2E scripts, and an 85-second recorded walkthrough.
           </p>
           <p>
-            Repository: <a href="https://github.com/FUYOH666/bankable-property-network">FUYOH666/bankable-property-network</a>
+            Repository: <a href="https://github.com/FUYOH666/attestrwa">FUYOH666/attestrwa</a>
             (public, branch <code>main</code>).
           </p>
         </div>
