@@ -113,11 +113,11 @@ Execute on GitHub (owner: `FUYOH666`):
 | Step | Command / UI | Status |
 |------|--------------|--------|
 | Rename repo to `attestrwa` | `gh repo rename attestrwa` | **Done** (2026-05-31) |
-| Update description | "Settlement Attestation Layer for RWA — EAS + escrow on Base" | Pending |
+| Update description | "Settlement Attestation Layer for RWA — EAS + escrow on Base" | **Done** (2026-05-31) |
 | Topics | `attestrwa`, `settlement-attestation`, … | **Done** (2026-05-31) |
 | README pivot diagram | See [`PIVOT.md`](PIVOT.md) linked from README | **Done** |
 | Enable GitHub Sponsors | Profile → Sponsors | Optional |
-| Create good first issues | From [`OSS_OPERATING_PLAN_90DAY.md`](OSS_OPERATING_PLAN_90DAY.md) | Pending |
+| Create good first issues | From [`OSS_OPERATING_PLAN_90DAY.md`](OSS_OPERATING_PLAN_90DAY.md) | **Done** ([#2–#6](https://github.com/FUYOH666/attestrwa/issues)) |
 
 ### Rename side effects
 

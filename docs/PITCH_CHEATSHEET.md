@@ -65,7 +65,7 @@
 | 4 | Bank-as-attester | Bank earns fee per attestation; owns policy via YAML DSL |
 | 5 | Two demo paths | Happy release + reject (payee mismatch) + buyer refund |
 | 6 | RAG = evidence | AI explains; **never** moves funds autonomously |
-| 7 | Engineering | Foundry 33/33 · pytest 62/62 · Slither 0 · CI green |
+| 7 | Engineering | Foundry 34/34 · pytest 69/69 · Slither 0 · CI green |
 | 8 | Repro demo | `./scripts/demo-mode.sh` — real EAS bytecode, no faucet |
 | 9 | Composable | Centrifuge / Maple / RealT = **customers**, not competitors |
 

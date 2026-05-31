@@ -77,7 +77,7 @@ Reproducible demo in one command (`./scripts/demo-mode.sh`):
 5. **Optional UI** — single-screen Next.js wallet flow (`/rwa-settlement-live`).
 6. **Farcaster Frame** — verify settlement status from feed (`/api/frame/attest`).
 
-**Engineering quality:** Foundry 33/33 tests, pytest 62/62, Slither 0 findings, CI green.
+**Engineering quality:** Foundry 34/34 tests, pytest 69/69, Slither 0 findings, CI green.
 
 ---
 

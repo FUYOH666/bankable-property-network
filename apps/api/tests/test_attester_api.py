@@ -67,7 +67,12 @@ def test_attest_unknown_developer_id_returns_400() -> None:
 def test_attest_healthz_responds() -> None:
     response = client.get("/attest/healthz")
     assert response.status_code == 200
-    assert "service" in response.json()
+    body = response.json()
+    assert body.get("service") == "attestrwa-attester"
+    assert "policy_file" in body
+    assert "repo_version" in body
+    assert "dev_chain_reachable" in body
+    assert body.get("status") in {"ok", "down"}
 
 
 def test_attest_lookup_placeholder() -> None:
