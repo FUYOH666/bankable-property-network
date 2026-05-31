@@ -136,8 +136,8 @@ GitHub redirects `bankable-property-network` → `attestrwa` automatically for a
 
 | Date | Target | Action | Response |
 |------|--------|--------|----------|
-| 2026-05-31 | Shibui | Issue | Pending — see GitHub issue URL after send |
-| 2026-05-31 | Centrifuge | Discussion | Pending — see GitHub discussion URL after send |
+| 2026-05-31 | Shibui | [Issue #97](https://github.com/EntEthAlliance/rnd-rwa-erc3643-eas/issues/97) | Awaiting response |
+| 2026-05-31 | Centrifuge | [Issue #828](https://github.com/centrifuge/protocol/issues/828) (discussions disabled) | Awaiting response |
 | — | EAS | PR | — |
 
 Update this table when outreach is sent.
